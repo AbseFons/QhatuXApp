@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package controller;
+
+import dao.PersonaDAO;
+import dao.UsuarioDAO;
+import dao_impl.PersonaDAOImpl;
+import dao_impl.UsuarioDAOImpl;
+import model.Persona;
+import model.Usuario;
+import util.PasswordHasher;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.time.LocalDate;
+
+@WebServlet(urlPatterns = {&quot;/login&quot;, &quot;/registro&quot;, &quot;/logout&quot;})
+<span class="nc" id="L18">public class AuthController extends HttpServlet {</span>
+
+<span class="nc" id="L20">    private final PersonaDAO personaDAO = new PersonaDAOImpl();</span>
+<span class="nc" id="L21">    private final UsuarioDAO usuarioDAO = new UsuarioDAOImpl();</span>
+
+    @Override
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+<span class="nc" id="L27">        String path = request.getServletPath();</span>
+
+<span class="nc bnc" id="L29" title="All 4 branches missed.">        switch (path) {</span>
+            case &quot;/login&quot;:
+<span class="nc" id="L31">                request.getRequestDispatcher(&quot;/WEB-INF/views/auth/login.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L32">                break;</span>
+
+            case &quot;/registro&quot;:
+<span class="nc" id="L35">                request.getRequestDispatcher(&quot;/WEB-INF/views/auth/registro.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L36">                break;</span>
+
+            case &quot;/logout&quot;:
+<span class="nc" id="L39">                HttpSession session = request.getSession(false);</span>
+<span class="nc bnc" id="L40" title="All 2 branches missed.">                if (session != null) {</span>
+<span class="nc" id="L41">                    session.invalidate();</span>
+                }
+<span class="nc" id="L43">                response.sendRedirect(request.getContextPath() + &quot;/login&quot;);</span>
+<span class="nc" id="L44">                break;</span>
+
+            default:
+<span class="nc" id="L47">                response.sendError(HttpServletResponse.SC_NOT_FOUND);</span>
+        }
+<span class="nc" id="L49">    }</span>
+
+    @Override
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+<span class="nc" id="L55">        String path = request.getServletPath();</span>
+
+        try {
+<span class="nc bnc" id="L58" title="All 3 branches missed.">            switch (path) {</span>
+                case &quot;/login&quot;:
+<span class="nc" id="L60">                    login(request, response);</span>
+<span class="nc" id="L61">                    break;</span>
+                case &quot;/registro&quot;:
+<span class="nc" id="L63">                    registro(request, response);</span>
+<span class="nc" id="L64">                    break;</span>
+                default:
+<span class="nc" id="L66">                    response.sendError(HttpServletResponse.SC_NOT_FOUND);</span>
+            }
+<span class="nc" id="L68">        } catch (Exception e) {</span>
+<span class="nc" id="L69">            e.printStackTrace();</span>
+<span class="nc" id="L70">            request.setAttribute(&quot;error&quot;, &quot;Error interno: &quot; + e.getMessage());</span>
+<span class="nc" id="L71">            request.getRequestDispatcher(&quot;/WEB-INF/views/auth/error.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L72">        }</span>
+<span class="nc" id="L73">    }</span>
+
+    private void login(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+
+<span class="nc" id="L78">        String email = request.getParameter(&quot;email&quot;);</span>
+<span class="nc" id="L79">        String password = request.getParameter(&quot;password&quot;);</span>
+
+<span class="nc" id="L81">        Usuario u = usuarioDAO.findByEmail(email);</span>
+
+<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (u == null) {</span>
+<span class="nc" id="L84">            request.setAttribute(&quot;error&quot;, &quot;Usuario no encontrado.&quot;);</span>
+<span class="nc" id="L85">            request.getRequestDispatcher(&quot;/WEB-INF/views/auth/login.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L86">            return;</span>
+        }
+
+<span class="nc" id="L89">        boolean valido = PasswordHasher.verify(password, u.getPasswordHash());</span>
+
+<span class="nc bnc" id="L91" title="All 2 branches missed.">        if (!valido) {</span>
+<span class="nc" id="L92">            request.setAttribute(&quot;error&quot;, &quot;Contraseña incorrecta.&quot;);</span>
+<span class="nc" id="L93">            request.getRequestDispatcher(&quot;/WEB-INF/views/auth/login.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L94">            return;</span>
+        }
+
+        // Recuperar Persona vinculada al usuario
+<span class="nc" id="L98">        Persona p = personaDAO.findById(u.getIdPersona());</span>
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        if (p == null) {</span>
+<span class="nc" id="L100">            request.setAttribute(&quot;error&quot;, &quot;No se encontró información personal del usuario.&quot;);</span>
+<span class="nc" id="L101">            request.getRequestDispatcher(&quot;/WEB-INF/views/auth/login.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L102">            return;</span>
+        }
+
+        // Actualizar último login
+<span class="nc" id="L106">        usuarioDAO.updateUltimoLogin(u.getIdUsuario());</span>
+
+        // Crear DTO de sesión
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        String nombreMostrar = (p.getNombres() != null ? p.getNombres() : &quot;&quot;);</span>
+<span class="nc bnc" id="L110" title="All 4 branches missed.">        if (p.getApellidos() != null &amp;&amp; !p.getApellidos().isBlank()) {</span>
+<span class="nc" id="L111">            nombreMostrar = (nombreMostrar + &quot; &quot; + p.getApellidos()).trim();</span>
+        }
+<span class="nc" id="L113">        model.SessionUser su = new model.SessionUser(</span>
+<span class="nc" id="L114">                        u.getIdUsuario(),</span>
+<span class="nc" id="L115">                        u.getIdPersona(),</span>
+<span class="nc bnc" id="L116" title="All 2 branches missed.">                        nombreMostrar.isBlank() ? p.getEmail() : nombreMostrar,</span>
+<span class="nc" id="L117">                        u.getRol()</span>
+                );
+
+        // Crear sesión
+<span class="nc" id="L121">        HttpSession session = request.getSession(true);</span>
+<span class="nc" id="L122">        session.setAttribute(&quot;user&quot;, su);</span>
+        // Puedes quitar la 'persona' si ya no la usas en vistas:
+<span class="nc" id="L124">        session.setAttribute(&quot;persona&quot;, p);</span>
+
+<span class="nc" id="L126">        response.sendRedirect(request.getContextPath() + &quot;/home&quot;);</span>
+
+<span class="nc" id="L128">    }</span>
+
+    private void registro(HttpServletRequest request, HttpServletResponse response)
+            throws Exception {
+
+        // Datos del formulario
+<span class="nc" id="L134">        String tipoDoc = request.getParameter(&quot;tipoDocumento&quot;);</span>
+<span class="nc" id="L135">        String nroDoc = request.getParameter(&quot;nroDocumento&quot;);</span>
+<span class="nc" id="L136">        String nombres = request.getParameter(&quot;nombres&quot;);</span>
+<span class="nc" id="L137">        String apellidos = request.getParameter(&quot;apellidos&quot;);</span>
+<span class="nc" id="L138">        String email = request.getParameter(&quot;email&quot;);</span>
+<span class="nc" id="L139">        String telefono = request.getParameter(&quot;telefono&quot;);</span>
+<span class="nc" id="L140">        String pais = request.getParameter(&quot;pais&quot;);</span>
+<span class="nc" id="L141">        String ciudad = request.getParameter(&quot;ciudad&quot;);</span>
+<span class="nc" id="L142">        String password = request.getParameter(&quot;password&quot;);</span>
+
+        // Validaciones básicas
+<span class="nc bnc" id="L145" title="All 2 branches missed.">        if (personaDAO.existsByEmail(email)) {</span>
+<span class="nc" id="L146">            request.setAttribute(&quot;error&quot;, &quot;El correo ya está registrado.&quot;);</span>
+<span class="nc" id="L147">            request.getRequestDispatcher(&quot;/WEB-INF/views/auth/registro.jsp&quot;).forward(request, response);</span>
+<span class="nc" id="L148">            return;</span>
+        }
+
+        // Crear persona
+<span class="nc" id="L152">        Persona p = new Persona();</span>
+<span class="nc" id="L153">        p.setTipoDocumento(tipoDoc);</span>
+<span class="nc" id="L154">        p.setNroDocumento(nroDoc);</span>
+<span class="nc" id="L155">        p.setNombres(nombres);</span>
+<span class="nc" id="L156">        p.setApellidos(apellidos);</span>
+<span class="nc" id="L157">        p.setEmail(email);</span>
+<span class="nc" id="L158">        p.setTelefono(telefono);</span>
+<span class="nc" id="L159">        p.setPais(pais);</span>
+<span class="nc" id="L160">        p.setCiudad(ciudad);</span>
+<span class="nc" id="L161">        p.setEstado(&quot;A&quot;);</span>
+<span class="nc" id="L162">        p.setFechaRegistro(LocalDate.now());</span>
+
+<span class="nc" id="L164">        long idPersona = personaDAO.create(p);</span>
+
+        // Crear usuario vinculado
+<span class="nc" id="L167">        Usuario u = new Usuario();</span>
+<span class="nc" id="L168">        u.setIdPersona((int) idPersona);</span>
+<span class="nc" id="L169">        u.setRol(&quot;USUARIO&quot;);</span>
+<span class="nc" id="L170">        u.setPasswordHash(PasswordHasher.hash(password));</span>
+
+<span class="nc" id="L172">        usuarioDAO.create(u);</span>
+
+        // Redirige al login
+<span class="nc" id="L175">        response.sendRedirect(request.getContextPath() + &quot;/login&quot;);</span>
+<span class="nc" id="L176">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

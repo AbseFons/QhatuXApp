@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthService.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">service</a> &gt; <span class="el_source">AuthService.java</span></div><h1>AuthService.java</h1><pre class="source lang-java linenums">package service;
+
+import dao.PersonaDAO;
+import dao.UsuarioDAO;
+import model.Persona;
+import model.Usuario;
+import util.PasswordHasher;
+
+public class AuthService {
+
+    private final PersonaDAO personaDAO;
+    private final UsuarioDAO usuarioDAO;
+
+<span class="nc" id="L14">    public AuthService(PersonaDAO pDao, UsuarioDAO uDao) {</span>
+<span class="nc" id="L15">        this.personaDAO = pDao;</span>
+<span class="nc" id="L16">        this.usuarioDAO = uDao;</span>
+<span class="nc" id="L17">    }</span>
+
+    public long register(Persona p, String rol, String plainPassword) throws Exception {
+        // Validaciones mínimas
+<span class="nc bnc" id="L21" title="All 4 branches missed.">        if (p.getEmail() == null || !p.getEmail().contains(&quot;@&quot;)) {</span>
+<span class="nc" id="L22">            throw new IllegalArgumentException(&quot;Email inválido&quot;);</span>
+        }
+<span class="nc bnc" id="L24" title="All 4 branches missed.">        if (plainPassword == null || plainPassword.length() &lt; 8) {</span>
+<span class="nc" id="L25">            throw new IllegalArgumentException(&quot;Contraseña insegura&quot;);</span>
+        }
+<span class="nc bnc" id="L27" title="All 2 branches missed.">        if (personaDAO.existsByEmail(p.getEmail())) {</span>
+<span class="nc" id="L28">            throw new IllegalArgumentException(&quot;Email ya registrado&quot;);</span>
+        }
+
+<span class="nc" id="L31">        long idPersona = personaDAO.create(p);</span>
+
+<span class="nc" id="L33">        Usuario u = new Usuario();</span>
+<span class="nc" id="L34">        u.setIdPersona(Math.toIntExact(idPersona));</span>
+<span class="nc bnc" id="L35" title="All 2 branches missed.">        u.setRol(rol == null ? &quot;asistente&quot; : rol); // por defecto asistente</span>
+<span class="nc" id="L36">        u.setPasswordHash(PasswordHasher.hash(plainPassword));</span>
+
+<span class="nc" id="L38">        long idUsuario = usuarioDAO.create(u);</span>
+<span class="nc" id="L39">        return idUsuario;</span>
+    }
+
+    public Usuario login(String email, String plainPassword) throws Exception {
+<span class="nc" id="L43">        Usuario u = usuarioDAO.findByEmail(email);</span>
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        if (u == null) {</span>
+<span class="nc" id="L45">            return null;</span>
+        }
+<span class="nc bnc" id="L47" title="All 2 branches missed.">        if (!PasswordHasher.verify(plainPassword, u.getPasswordHash())) {</span>
+<span class="nc" id="L48">            return null;</span>
+        }
+<span class="nc" id="L50">        usuarioDAO.updateUltimoLogin(u.getIdUsuario());</span>
+<span class="nc" id="L51">        return u;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UsuarioDAOImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">dao_impl</a> &gt; <span class="el_source">UsuarioDAOImpl.java</span></div><h1>UsuarioDAOImpl.java</h1><pre class="source lang-java linenums">package dao_impl;
+
+import dao.UsuarioDAO;
+import model.Usuario;
+import util.MySQLConexion;
+
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="nc" id="L12">public class UsuarioDAOImpl implements UsuarioDAO {</span>
+
+    private static final String SQL_INSERT
+            = &quot;INSERT INTO Usuario (IdPersona,Rol,PasswordHash) VALUES (?,?,?)&quot;;
+
+    private static final String SQL_FIND_BY_EMAIL
+            = &quot;SELECT IdUsuario,IdPersona,Rol,Puntos,PasswordHash,UltimoLogin FROM Usuario WHERE IdUsuario IN &quot;
+            + &quot;(SELECT u.IdUsuario FROM Usuario u JOIN Persona p ON u.IdPersona=p.IdPersona WHERE p.Email=?) &quot;
+            + &quot;LIMIT 1&quot;;
+
+    private static final String SQL_FIND_BY_ID
+            = &quot;SELECT IdUsuario,IdPersona,Rol,Puntos,PasswordHash,UltimoLogin FROM Usuario WHERE IdUsuario=?&quot;;
+
+    private static final String SQL_UPDATE_LAST_LOGIN
+            = &quot;UPDATE Usuario SET UltimoLogin=NOW() WHERE IdUsuario=?&quot;;
+
+    private static final String SQL_TOP_BY_PUNTOS
+            = &quot;SELECT IdUsuario, IdPersona, Rol, Puntos, PasswordHash, UltimoLogin &quot;
+            + &quot;FROM Usuario &quot;
+            + &quot;ORDER BY Puntos DESC &quot;
+            + &quot;LIMIT ?&quot;;
+
+    @Override
+    public long create(Usuario u) throws Exception {
+<span class="nc" id="L36">        try (Connection con = MySQLConexion.getConexion(); PreparedStatement ps = con.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {</span>
+
+<span class="nc" id="L38">            ps.setLong(1, u.getIdPersona());</span>
+<span class="nc" id="L39">            ps.setString(2, u.getRol());</span>
+<span class="nc" id="L40">            ps.setString(3, u.getPasswordHash());</span>
+
+<span class="nc" id="L42">            int rows = ps.executeUpdate();</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (rows == 0) {</span>
+<span class="nc" id="L44">                throw new SQLException(&quot;No se insertó Usuario (0 filas).&quot;);</span>
+            }
+
+<span class="nc" id="L47">            try (ResultSet rs = ps.getGeneratedKeys()) {</span>
+<span class="nc bnc" id="L48" title="All 2 branches missed.">                if (rs.next()) {</span>
+<span class="nc" id="L49">                    return rs.getLong(1);</span>
+                } else {
+<span class="nc" id="L51">                    throw new SQLException(&quot;No se obtuvo el ID generado de Usuario.&quot;);</span>
+                }
+            }
+        }
+    }
+
+    @Override
+    public Usuario findByEmail(String email) throws Exception {
+<span class="nc" id="L59">        try (Connection con = MySQLConexion.getConexion(); PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_EMAIL)) {</span>
+
+<span class="nc" id="L61">            ps.setString(1, email);</span>
+
+<span class="nc" id="L63">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L64" title="All 2 branches missed.">                if (!rs.next()) {</span>
+<span class="nc" id="L65">                    return null;</span>
+                }
+
+<span class="nc" id="L68">                Usuario u = new Usuario();</span>
+<span class="nc" id="L69">                u.setIdUsuario(rs.getInt(&quot;IdUsuario&quot;));</span>
+<span class="nc" id="L70">                u.setIdPersona(rs.getInt(&quot;IdPersona&quot;));</span>
+<span class="nc" id="L71">                u.setRol(rs.getString(&quot;Rol&quot;));</span>
+<span class="nc" id="L72">                u.setPasswordHash(rs.getString(&quot;PasswordHash&quot;));</span>
+<span class="nc" id="L73">                u.setPuntos(rs.getInt(&quot;Puntos&quot;));</span>
+
+<span class="nc" id="L75">                Timestamp ts = rs.getTimestamp(&quot;UltimoLogin&quot;);</span>
+<span class="nc bnc" id="L76" title="All 2 branches missed.">                u.setUltimoLogin(ts != null ? ts.toLocalDateTime() : null);</span>
+
+<span class="nc" id="L78">                return u;</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">            }</span>
+<span class="nc bnc" id="L80" title="All 4 branches missed.">        }</span>
+    }
+
+    @Override
+    public Usuario findById(long id) throws Exception {
+<span class="nc" id="L85">        try (Connection con = MySQLConexion.getConexion(); PreparedStatement ps = con.prepareStatement(SQL_FIND_BY_ID)) {</span>
+
+<span class="nc" id="L87">            ps.setLong(1, id);</span>
+
+<span class="nc" id="L89">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L90" title="All 2 branches missed.">                if (!rs.next()) {</span>
+<span class="nc" id="L91">                    return null;</span>
+                }
+
+<span class="nc" id="L94">                Usuario u = new Usuario();</span>
+<span class="nc" id="L95">                u.setIdUsuario(rs.getInt(&quot;IdUsuario&quot;));</span>
+<span class="nc" id="L96">                u.setIdPersona(rs.getInt(&quot;IdPersona&quot;));</span>
+<span class="nc" id="L97">                u.setRol(rs.getString(&quot;Rol&quot;));</span>
+<span class="nc" id="L98">                u.setPasswordHash(rs.getString(&quot;PasswordHash&quot;));</span>
+<span class="nc" id="L99">                u.setPuntos(rs.getInt(&quot;Puntos&quot;));</span>
+
+<span class="nc" id="L101">                Timestamp ts = rs.getTimestamp(&quot;UltimoLogin&quot;);</span>
+<span class="nc bnc" id="L102" title="All 2 branches missed.">                u.setUltimoLogin(ts != null ? ts.toLocalDateTime() : null);</span>
+
+<span class="nc" id="L104">                return u;</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">            }</span>
+<span class="nc bnc" id="L106" title="All 4 branches missed.">        }</span>
+    }
+
+    @Override
+    public List&lt;Usuario&gt; topByPuntos(int limit) throws Exception {
+<span class="nc" id="L111">        List&lt;Usuario&gt; out = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L113">        try (Connection con = MySQLConexion.getConexion(); PreparedStatement ps = con.prepareStatement(SQL_TOP_BY_PUNTOS)) {</span>
+
+<span class="nc" id="L115">            ps.setInt(1, limit);</span>
+
+<span class="nc" id="L117">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">                while (rs.next()) {</span>
+<span class="nc" id="L119">                    Usuario u = new Usuario();</span>
+<span class="nc" id="L120">                    u.setIdUsuario(rs.getInt(&quot;IdUsuario&quot;));</span>
+<span class="nc" id="L121">                    u.setIdPersona(rs.getInt(&quot;IdPersona&quot;));</span>
+<span class="nc" id="L122">                    u.setRol(rs.getString(&quot;Rol&quot;));</span>
+<span class="nc" id="L123">                    u.setPasswordHash(rs.getString(&quot;PasswordHash&quot;));</span>
+<span class="nc" id="L124">                    u.setPuntos(rs.getInt(&quot;Puntos&quot;));</span>
+
+<span class="nc" id="L126">                    Timestamp ts = rs.getTimestamp(&quot;UltimoLogin&quot;);</span>
+<span class="nc bnc" id="L127" title="All 2 branches missed.">                    u.setUltimoLogin(ts != null ? ts.toLocalDateTime() : null);</span>
+
+<span class="nc" id="L129">                    out.add(u);</span>
+<span class="nc" id="L130">                }</span>
+            }
+        }
+<span class="nc" id="L133">        return out;</span>
+    }
+
+    @Override
+    public void updateUltimoLogin(long id) throws Exception {
+<span class="nc" id="L138">        try (Connection con = MySQLConexion.getConexion(); PreparedStatement ps = con.prepareStatement(SQL_UPDATE_LAST_LOGIN)) {</span>
+
+<span class="nc" id="L140">            ps.setLong(1, id);</span>
+<span class="nc" id="L141">            int rows = ps.executeUpdate();</span>
+<span class="nc bnc" id="L142" title="All 2 branches missed.">            if (rows == 0) {</span>
+<span class="nc" id="L143">                throw new SQLException(&quot;No se actualizó UltimoLogin: IdUsuario no encontrado.&quot;);</span>
+            }
+        }
+<span class="nc" id="L146">    }</span>
+
+    @Override
+    public void incrementarPuntos(long idUsuario, int delta) throws Exception {
+<span class="nc" id="L150">        String sql = &quot;UPDATE Usuario SET Puntos = Puntos + ? WHERE IdUsuario = ?&quot;;</span>
+<span class="nc" id="L151">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+
+<span class="nc" id="L153">            ps.setInt(1, delta);</span>
+<span class="nc" id="L154">            ps.setLong(2, idUsuario);</span>
+<span class="nc" id="L155">            ps.executeUpdate();</span>
+        }
+<span class="nc" id="L157">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

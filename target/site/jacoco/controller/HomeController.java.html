@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HomeController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">controller</a> &gt; <span class="el_source">HomeController.java</span></div><h1>HomeController.java</h1><pre class="source lang-java linenums">package controller;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
+import service.EventoService;
+import service.CompraService;
+import service.GamificationService;
+
+import dao_impl.EventoDAOImpl;
+import dao.CategoriaDAO;
+import dao_impl.CategoriaDAOImpl;
+import dao.UsuarioDAO;
+import dao_impl.UsuarioDAOImpl;
+import dao.PersonaDAO;
+import dao_impl.PersonaDAOImpl;
+import dao.CompraDAO;
+import dao_impl.CompraDAOImpl;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import model.Evento;
+import model.Usuario;
+import model.Persona;
+import model.Compra;
+import model.SessionUser;
+
+@WebServlet(&quot;/home&quot;)
+public class HomeController extends HttpServlet {
+
+<span class="nc" id="L36">    private final EventoService eventoService = new EventoService(new EventoDAOImpl());</span>
+<span class="nc" id="L37">    private final CategoriaDAO categoriaDAO = new CategoriaDAOImpl();</span>
+
+<span class="nc" id="L39">    private final UsuarioDAO usuarioDAO = new UsuarioDAOImpl();</span>
+<span class="nc" id="L40">    private final PersonaDAO personaDAO = new PersonaDAOImpl();</span>
+    private final CompraService compraService;
+
+<span class="nc" id="L43">    public HomeController() {</span>
+        // GamificationService no se usa aquí directamente,
+        // pero CompraService lo pide en el constructor.
+<span class="nc" id="L46">        GamificationService gService = new GamificationService(usuarioDAO);</span>
+<span class="nc" id="L47">        this.compraService = new CompraService(</span>
+                new CompraDAOImpl(),
+                new EventoDAOImpl(),
+                gService
+        );
+<span class="nc" id="L52">    }</span>
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp)
+            throws ServletException, IOException {
+
+        try {
+            // 1) Eventos destacados
+<span class="nc" id="L60">            req.setAttribute(&quot;destacados&quot;, eventoService.listDestacados(6));</span>
+
+            // 2) Categorías
+<span class="nc" id="L63">            req.setAttribute(&quot;categorias&quot;, categoriaDAO.listAll());</span>
+
+            // 3) Si hay usuario logueado → cargar resumen personalizado
+<span class="nc" id="L66">            SessionUser su = (SessionUser) req.getSession().getAttribute(&quot;user&quot;);</span>
+<span class="nc bnc" id="L67" title="All 2 branches missed.">            if (su != null) {</span>
+<span class="nc" id="L68">                long idUsuario = su.getIdUsuario();</span>
+
+<span class="nc" id="L70">                Usuario u = usuarioDAO.findById(idUsuario);</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">                if (u != null) {</span>
+<span class="nc" id="L72">                    Persona p = personaDAO.findById(u.getIdPersona());</span>
+
+<span class="nc" id="L74">                    List&lt;Compra&gt; futuras = compraService.comprasFuturas(idUsuario);</span>
+                    // Limitar a máximo 3 para el home
+<span class="nc" id="L76">                    int max = Math.min(3, futuras.size());</span>
+<span class="nc" id="L77">                    List&lt;Compra&gt; proximosHome = futuras.subList(0, max);</span>
+
+<span class="nc" id="L79">                    req.setAttribute(&quot;usuarioHome&quot;, u);</span>
+<span class="nc" id="L80">                    req.setAttribute(&quot;personaHome&quot;, p);</span>
+<span class="nc" id="L81">                    req.setAttribute(&quot;proximosEventosHome&quot;, proximosHome);</span>
+                }
+            }
+
+            // 4) Ranking de fans (siempre, esté o no logueado)
+<span class="nc" id="L86">            List&lt;Usuario&gt; topFans = usuarioDAO.topByPuntos(5);</span>
+
+<span class="nc" id="L88">            Map&lt;Integer, Persona&gt; personasRanking = new HashMap&lt;&gt;();</span>
+<span class="nc bnc" id="L89" title="All 2 branches missed.">            for (Usuario uFan : topFans) {</span>
+<span class="nc" id="L90">                int idPersona = uFan.getIdPersona();</span>
+<span class="nc" id="L91">                Persona pFan = personaDAO.findById(idPersona);</span>
+<span class="nc" id="L92">                personasRanking.put(idPersona, pFan);</span>
+<span class="nc" id="L93">            }</span>
+
+<span class="nc" id="L95">            req.setAttribute(&quot;topFans&quot;, topFans);</span>
+<span class="nc" id="L96">            req.setAttribute(&quot;personasRanking&quot;, personasRanking);</span>
+
+<span class="nc" id="L98">            req.getRequestDispatcher(&quot;/WEB-INF/views/home.jsp&quot;).forward(req, resp);</span>
+
+<span class="nc" id="L100">        } catch (Exception e) {</span>
+<span class="nc" id="L101">            req.setAttribute(&quot;error&quot;, e.getMessage());</span>
+<span class="nc" id="L102">            req.getRequestDispatcher(&quot;/WEB-INF/views/error.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L103">        }</span>
+<span class="nc" id="L104">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

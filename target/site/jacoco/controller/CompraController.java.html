@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CompraController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">controller</a> &gt; <span class="el_source">CompraController.java</span></div><h1>CompraController.java</h1><pre class="source lang-java linenums">package controller;
+
+import dao.EventoDAO;
+import dao.UsuarioDAO;
+import dao_impl.CompraDAOImpl;
+import dao_impl.EventoDAOImpl;
+import dao_impl.UsuarioDAOImpl;
+import model.Evento;
+import model.Usuario;
+import service.CompraService;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import model.SessionUser;
+import service.GamificationService;
+
+@WebServlet(urlPatterns = {&quot;/eventos/*&quot;, &quot;/mis-compras&quot;})
+public class CompraController extends HttpServlet {
+
+<span class="nc" id="L22">    private final EventoDAO eventoDAO = new EventoDAOImpl();</span>
+    private final CompraService service;
+
+<span class="nc" id="L25">    public CompraController() {</span>
+<span class="nc" id="L26">        UsuarioDAO usuarioDAO = new UsuarioDAOImpl();</span>
+<span class="nc" id="L27">        GamificationService gamificationService = new GamificationService(usuarioDAO);</span>
+
+<span class="nc" id="L29">        this.service = new CompraService(</span>
+                new CompraDAOImpl(),
+                new EventoDAOImpl(),
+                gamificationService
+        );
+<span class="nc" id="L34">    }</span>
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L38">        String servletPath = req.getServletPath(); // &quot;/eventos&quot; ó &quot;/mis-compras&quot;</span>
+<span class="nc" id="L39">        String pathInfo = req.getPathInfo();       // &quot;/{id}/comprar&quot; o null</span>
+
+        try {
+<span class="nc" id="L42">            SessionUser u = (SessionUser) req.getSession().getAttribute(&quot;user&quot;);</span>
+<span class="nc bnc" id="L43" title="All 2 branches missed.">            if (u == null) {</span>
+<span class="nc" id="L44">                resp.sendRedirect(req.getContextPath() + &quot;/login&quot;);</span>
+<span class="nc" id="L45">                return;</span>
+            }
+<span class="nc" id="L47">            long idUsuario = u.getIdUsuario();</span>
+
+            // /eventos/{id}/comprar
+<span class="nc bnc" id="L50" title="All 6 branches missed.">            if (&quot;/eventos&quot;.equals(servletPath) &amp;&amp; pathInfo != null &amp;&amp; pathInfo.endsWith(&quot;/comprar&quot;)) {</span>
+<span class="nc" id="L51">                String[] parts = pathInfo.split(&quot;/&quot;); // [&quot;&quot;, &quot;{id}&quot;, &quot;comprar&quot;]</span>
+<span class="nc" id="L52">                long idEvento = Long.parseLong(parts[1]);</span>
+<span class="nc" id="L53">                int cantidad = Integer.parseInt(req.getParameter(&quot;cantidad&quot;));</span>
+
+                try {
+                    // Aquí puede lanzar IllegalArgumentException o IllegalStateException
+<span class="nc" id="L57">                    service.comprar(idUsuario, idEvento, cantidad);</span>
+
+                    // Si todo va bien, rediriges a mis compras
+<span class="nc" id="L60">                    resp.sendRedirect(req.getContextPath() + &quot;/mis-compras&quot;);</span>
+<span class="nc" id="L61">                    return;</span>
+
+<span class="nc" id="L63">                } catch (IllegalArgumentException | IllegalStateException ex) {</span>
+                    // Errores &quot;funcionales&quot; (sin stock, cantidad inválida, etc.)
+                    // 1. mensaje para el JSP
+<span class="nc" id="L66">                    req.setAttribute(&quot;errorCompra&quot;, ex.getMessage());</span>
+
+                    // 2. recargas el evento para volver al detalle
+<span class="nc" id="L69">                    Evento evento = eventoDAO.findById(idEvento);</span>
+<span class="nc" id="L70">                    req.setAttribute(&quot;evento&quot;, evento);</span>
+
+                    // 3. reenvías al mismo JSP de detalle que usas en el GET
+<span class="nc" id="L73">                    req.getRequestDispatcher(&quot;/WEB-INF/views/eventos/eventos-detalle.jsp&quot;)</span>
+<span class="nc" id="L74">                            .forward(req, resp);</span>
+<span class="nc" id="L75">                    return;</span>
+                }
+            }
+
+            // Si no matchea ninguna ruta conocida
+<span class="nc" id="L80">            resp.sendError(404);</span>
+
+<span class="nc" id="L82">        } catch (Exception e) {</span>
+            // Cualquier otro error no previsto (BD caída, NullPointer raro, etc.)
+<span class="nc" id="L84">            req.setAttribute(&quot;error&quot;, e.getMessage());</span>
+<span class="nc" id="L85">            req.getRequestDispatcher(&quot;/WEB-INF/views/error.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L86">        }</span>
+<span class="nc" id="L87">    }</span>
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L91">        String path = req.getServletPath();</span>
+        try {
+<span class="nc bnc" id="L93" title="All 2 branches missed.">            if (&quot;/mis-compras&quot;.equals(path)) {</span>
+<span class="nc" id="L94">                SessionUser u = (SessionUser) req.getSession().getAttribute(&quot;user&quot;);</span>
+<span class="nc bnc" id="L95" title="All 2 branches missed.">                if (u == null) {</span>
+<span class="nc" id="L96">                    resp.sendRedirect(req.getContextPath() + &quot;/login&quot;);</span>
+<span class="nc" id="L97">                    return;</span>
+                }
+<span class="nc" id="L99">                long idUsuario = u.getIdUsuario();</span>
+<span class="nc" id="L100">                req.setAttribute(&quot;compras&quot;, service.misCompras(u.getIdUsuario()));</span>
+<span class="nc" id="L101">                req.getRequestDispatcher(&quot;/WEB-INF/views/compras/mis-compras.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L102">            } else {</span>
+<span class="nc" id="L103">                resp.sendError(404);</span>
+            }
+<span class="nc" id="L105">        } catch (Exception e) {</span>
+<span class="nc" id="L106">            req.setAttribute(&quot;error&quot;, e.getMessage());</span>
+<span class="nc" id="L107">            req.getRequestDispatcher(&quot;/WEB-INF/views/error.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L108">        }</span>
+<span class="nc" id="L109">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

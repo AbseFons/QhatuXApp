@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComentarioController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">controller</a> &gt; <span class="el_source">ComentarioController.java</span></div><h1>ComentarioController.java</h1><pre class="source lang-java linenums">package controller;
+
+import dao.UsuarioDAO;
+import dao_impl.ComentarioDAOImpl;
+import dao_impl.UsuarioDAOImpl;
+import model.Usuario;
+import service.ComentarioService;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import model.SessionUser;
+import service.GamificationService;
+
+@WebServlet(urlPatterns = {&quot;/eventos/comentar&quot;, &quot;/eventos/comentario/eliminar&quot;})
+public class ComentarioController extends HttpServlet {
+
+    private final ComentarioService comentarioService;
+
+<span class="nc" id="L21">    public ComentarioController() {</span>
+<span class="nc" id="L22">        UsuarioDAO uDao = new UsuarioDAOImpl();</span>
+<span class="nc" id="L23">        GamificationService gService = new GamificationService(uDao);</span>
+
+<span class="nc" id="L25">        this.comentarioService = new ComentarioService(</span>
+                new ComentarioDAOImpl(),
+                gService
+        );
+<span class="nc" id="L29">    }</span>
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L33">        String path = req.getServletPath();</span>
+        try {
+<span class="nc" id="L35">            SessionUser u = (SessionUser) req.getSession().getAttribute(&quot;user&quot;);</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">            if (u == null) {</span>
+<span class="nc" id="L37">                resp.sendRedirect(req.getContextPath() + &quot;/login&quot;);</span>
+<span class="nc" id="L38">                return;</span>
+            }
+<span class="nc" id="L40">            long idUsuario = u.getIdUsuario();</span>
+
+<span class="nc bnc" id="L42" title="All 2 branches missed.">            if (&quot;/eventos/comentar&quot;.equals(path)) {</span>
+<span class="nc" id="L43">                long idEvento = Long.parseLong(req.getParameter(&quot;idEvento&quot;));</span>
+<span class="nc" id="L44">                String texto = req.getParameter(&quot;texto&quot;);</span>
+<span class="nc" id="L45">                comentarioService.crear(idEvento, u.getIdUsuario(), texto);</span>
+<span class="nc" id="L46">                resp.sendRedirect(req.getContextPath() + &quot;/eventos/detalle?id=&quot; + idEvento);</span>
+<span class="nc bnc" id="L47" title="All 2 branches missed.">            } else if (&quot;/eventos/comentario/eliminar&quot;.equals(path)) {</span>
+<span class="nc" id="L48">                long idComentario = Long.parseLong(req.getParameter(&quot;idComentario&quot;));</span>
+<span class="nc" id="L49">                long idEvento = Long.parseLong(req.getParameter(&quot;idEvento&quot;));</span>
+<span class="nc" id="L50">                boolean esAdmin = &quot;ADMIN&quot;.equalsIgnoreCase(u.getRol());</span>
+<span class="nc" id="L51">                comentarioService.eliminar(idComentario, u.getIdUsuario(), esAdmin);</span>
+<span class="nc" id="L52">                resp.sendRedirect(req.getContextPath() + &quot;/eventos/detalle?id=&quot; + idEvento);</span>
+<span class="nc" id="L53">            } else {</span>
+<span class="nc" id="L54">                resp.sendError(404);</span>
+            }
+<span class="nc" id="L56">        } catch (Exception e) {</span>
+<span class="nc" id="L57">            req.setAttribute(&quot;error&quot;, e.getMessage());</span>
+<span class="nc" id="L58">            req.getRequestDispatcher(&quot;/WEB-INF/views/error.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L59">        }</span>
+<span class="nc" id="L60">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

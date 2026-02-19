@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventoDAOImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">dao_impl</a> &gt; <span class="el_source">EventoDAOImpl.java</span></div><h1>EventoDAOImpl.java</h1><pre class="source lang-java linenums">package dao_impl;
+
+import dao.EventoDAO;
+import model.Evento;
+import util.MySQLConexion;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="nc" id="L11">public class EventoDAOImpl implements EventoDAO {</span>
+
+    @Override
+    public List&lt;Evento&gt; list(int page, int size, String q) throws Exception {
+<span class="nc" id="L15">        List&lt;Evento&gt; out = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L16">        String sql = &quot;SELECT e.IdEvento, e.IdOrganizador, e.Nombre, e.IdCategoria, e.Descripcion, &quot;</span>
+                + &quot;e.FechaInicio, e.FechaFin, e.Pais, e.Ciudad, e.Direccion, &quot;
+                + &quot;e.EstadoPublicacion, e.Precio, e.Aforo, e.UrlFoto &quot;
+                + &quot;FROM Evento e &quot;
+                + &quot;WHERE ( ? IS NULL OR ? = '' OR e.Nombre LIKE CONCAT('%', ?, '%') &quot;
+                + &quot;       OR e.Ciudad LIKE CONCAT('%', ?, '%') OR e.Pais LIKE CONCAT('%', ?, '%') ) &quot;
+                + &quot;AND e.EstadoPublicacion &lt;&gt; 'oculto' &quot;
+                + &quot;ORDER BY e.FechaInicio ASC LIMIT ? OFFSET ?&quot;;
+
+<span class="nc" id="L25">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+<span class="nc" id="L26">            int i = 1;</span>
+<span class="nc" id="L27">            ps.setString(i++, q);</span>
+<span class="nc" id="L28">            ps.setString(i++, q);</span>
+<span class="nc" id="L29">            ps.setString(i++, q);</span>
+<span class="nc" id="L30">            ps.setString(i++, q);</span>
+<span class="nc" id="L31">            ps.setString(i++, q);</span>
+<span class="nc" id="L32">            ps.setInt(i++, size);</span>
+<span class="nc" id="L33">            ps.setInt(i, (page - 1) * size);</span>
+
+<span class="nc" id="L35">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L36" title="All 2 branches missed.">                while (rs.next()) {</span>
+<span class="nc" id="L37">                    out.add(mapRow(rs));</span>
+                }
+            }
+        }
+<span class="nc" id="L41">        return out;</span>
+    }
+
+    @Override
+    public List&lt;Evento&gt; list(int offset, int size, String q, Long idCategoria) throws Exception {
+
+<span class="nc" id="L47">        StringBuilder sql = new StringBuilder(</span>
+                &quot;SELECT IdEvento, IdOrganizador, Nombre, IdCategoria, Descripcion, &quot;
+                + &quot;       FechaInicio, FechaFin, Pais, Ciudad, Direccion, &quot;
+                + &quot;       EstadoPublicacion, Precio, Aforo, UrlFoto, EsDestacado &quot;
+                + &quot;FROM Evento &quot;
+                + &quot;WHERE EstadoPublicacion = 'publicado' &quot;
+        );
+
+<span class="nc" id="L55">        List&lt;Object&gt; params = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L57" title="All 4 branches missed.">        if (q != null &amp;&amp; !q.isBlank()) {</span>
+<span class="nc" id="L58">            sql.append(&quot; AND (Nombre LIKE ? OR Ciudad LIKE ?) &quot;);</span>
+<span class="nc" id="L59">            String like = &quot;%&quot; + q.trim() + &quot;%&quot;;</span>
+<span class="nc" id="L60">            params.add(like);</span>
+<span class="nc" id="L61">            params.add(like);</span>
+        }
+
+<span class="nc bnc" id="L64" title="All 2 branches missed.">        if (idCategoria != null) {</span>
+<span class="nc" id="L65">            sql.append(&quot; AND IdCategoria = ? &quot;);</span>
+<span class="nc" id="L66">            params.add(idCategoria);</span>
+        }
+
+<span class="nc" id="L69">        sql.append(&quot; ORDER BY FechaInicio ASC LIMIT ? OFFSET ? &quot;);</span>
+<span class="nc" id="L70">        params.add(size);</span>
+<span class="nc" id="L71">        params.add(offset);</span>
+
+<span class="nc" id="L73">        List&lt;Evento&gt; out = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L74">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql.toString())) {</span>
+
+<span class="nc" id="L76">            int idx = 1;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            for (Object param : params) {</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">                if (param instanceof String) {</span>
+<span class="nc" id="L79">                    ps.setString(idx++, (String) param);</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">                } else if (param instanceof Long) {</span>
+<span class="nc" id="L81">                    ps.setLong(idx++, (Long) param);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">                } else if (param instanceof Integer) {</span>
+<span class="nc" id="L83">                    ps.setInt(idx++, (Integer) param);</span>
+                }
+<span class="nc" id="L85">            }</span>
+
+<span class="nc" id="L87">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L88" title="All 2 branches missed.">                while (rs.next()) {</span>
+<span class="nc" id="L89">                    Evento e = new Evento();</span>
+<span class="nc" id="L90">                    e.setIdEvento(rs.getLong(&quot;IdEvento&quot;));</span>
+<span class="nc" id="L91">                    e.setIdOrganizador(rs.getLong(&quot;IdOrganizador&quot;));</span>
+<span class="nc" id="L92">                    e.setNombre(rs.getString(&quot;Nombre&quot;));</span>
+<span class="nc" id="L93">                    e.setIdCategoria(rs.getLong(&quot;IdCategoria&quot;));</span>
+<span class="nc" id="L94">                    e.setDescripcion(rs.getString(&quot;Descripcion&quot;));</span>
+<span class="nc" id="L95">                    Timestamp fi = rs.getTimestamp(&quot;FechaInicio&quot;);</span>
+<span class="nc bnc" id="L96" title="All 2 branches missed.">                    e.setFechaInicio(fi != null ? fi.toLocalDateTime() : null);</span>
+<span class="nc" id="L97">                    Timestamp ff = rs.getTimestamp(&quot;FechaFin&quot;);</span>
+<span class="nc bnc" id="L98" title="All 2 branches missed.">                    e.setFechaFin(ff != null ? ff.toLocalDateTime() : null);</span>
+<span class="nc" id="L99">                    e.setPais(rs.getString(&quot;Pais&quot;));</span>
+<span class="nc" id="L100">                    e.setCiudad(rs.getString(&quot;Ciudad&quot;));</span>
+<span class="nc" id="L101">                    e.setDireccion(rs.getString(&quot;Direccion&quot;));</span>
+<span class="nc" id="L102">                    e.setEstadoPublicacion(rs.getString(&quot;EstadoPublicacion&quot;));</span>
+<span class="nc" id="L103">                    e.setPrecio(rs.getDouble(&quot;Precio&quot;));</span>
+<span class="nc" id="L104">                    int af = rs.getInt(&quot;Aforo&quot;);</span>
+<span class="nc bnc" id="L105" title="All 2 branches missed.">                    e.setAforo(rs.wasNull() ? null : af);</span>
+<span class="nc" id="L106">                    e.setUrlFoto(rs.getString(&quot;UrlFoto&quot;));</span>
+<span class="nc" id="L107">                    e.setEsDestacado(rs.getBoolean(&quot;EsDestacado&quot;));</span>
+<span class="nc" id="L108">                    out.add(e);</span>
+<span class="nc" id="L109">                }</span>
+            }
+        }
+
+<span class="nc" id="L113">        return out;</span>
+    }
+
+    @Override
+    public int count(String q) throws Exception {
+<span class="nc" id="L118">        String sql = &quot;SELECT COUNT(1) FROM Evento e &quot;</span>
+                + &quot;WHERE ( ? IS NULL OR ? = '' OR e.Nombre LIKE CONCAT('%', ?, '%') &quot;
+                + &quot;       OR e.Ciudad LIKE CONCAT('%', ?, '%') OR e.Pais LIKE CONCAT('%', ?, '%') ) &quot;
+                + &quot;AND e.EstadoPublicacion &lt;&gt; 'oculto'&quot;;
+
+<span class="nc" id="L123">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+<span class="nc" id="L124">            int i = 1;</span>
+<span class="nc" id="L125">            ps.setString(i++, q);</span>
+<span class="nc" id="L126">            ps.setString(i++, q);</span>
+<span class="nc" id="L127">            ps.setString(i++, q);</span>
+<span class="nc" id="L128">            ps.setString(i++, q);</span>
+<span class="nc" id="L129">            ps.setString(i++, q);</span>
+
+<span class="nc" id="L131">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L132" title="All 2 branches missed.">                if (rs.next()) {</span>
+<span class="nc" id="L133">                    return rs.getInt(1);</span>
+                }
+<span class="nc bnc" id="L135" title="All 2 branches missed.">            }</span>
+<span class="nc bnc" id="L136" title="All 4 branches missed.">        }</span>
+<span class="nc" id="L137">        return 0;</span>
+    }
+
+    @Override
+    public int count(String q, Long idCategoria) throws Exception {
+<span class="nc" id="L142">        StringBuilder sql = new StringBuilder(</span>
+                &quot;SELECT COUNT(*) AS total &quot;
+                + &quot;FROM Evento &quot;
+                + &quot;WHERE EstadoPublicacion = 'publicado' &quot;
+        );
+
+<span class="nc" id="L148">        List&lt;Object&gt; params = new ArrayList&lt;&gt;();</span>
+
+<span class="nc bnc" id="L150" title="All 4 branches missed.">        if (q != null &amp;&amp; !q.isBlank()) {</span>
+<span class="nc" id="L151">            sql.append(&quot; AND (Nombre LIKE ? OR Ciudad LIKE ?) &quot;);</span>
+<span class="nc" id="L152">            String like = &quot;%&quot; + q.trim() + &quot;%&quot;;</span>
+<span class="nc" id="L153">            params.add(like);</span>
+<span class="nc" id="L154">            params.add(like);</span>
+        }
+
+<span class="nc bnc" id="L157" title="All 2 branches missed.">        if (idCategoria != null) {</span>
+<span class="nc" id="L158">            sql.append(&quot; AND IdCategoria = ? &quot;);</span>
+<span class="nc" id="L159">            params.add(idCategoria);</span>
+        }
+
+<span class="nc" id="L162">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql.toString())) {</span>
+
+<span class="nc" id="L164">            int idx = 1;</span>
+<span class="nc bnc" id="L165" title="All 2 branches missed.">            for (Object param : params) {</span>
+<span class="nc bnc" id="L166" title="All 2 branches missed.">                if (param instanceof String) {</span>
+<span class="nc" id="L167">                    ps.setString(idx++, (String) param);</span>
+<span class="nc bnc" id="L168" title="All 2 branches missed.">                } else if (param instanceof Long) {</span>
+<span class="nc" id="L169">                    ps.setLong(idx++, (Long) param);</span>
+                }
+<span class="nc" id="L171">            }</span>
+
+<span class="nc" id="L173">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">                if (rs.next()) {</span>
+<span class="nc" id="L175">                    return rs.getInt(&quot;total&quot;);</span>
+                }
+<span class="nc bnc" id="L177" title="All 2 branches missed.">            }</span>
+<span class="nc bnc" id="L178" title="All 4 branches missed.">        }</span>
+<span class="nc" id="L179">        return 0;</span>
+    }
+
+    @Override
+    public Evento findById(long id) throws Exception {
+<span class="nc" id="L184">        String sql = &quot;SELECT e.IdEvento, e.IdOrganizador, e.Nombre, e.IdCategoria, e.Descripcion, &quot;</span>
+                + &quot;e.FechaInicio, e.FechaFin, e.Pais, e.Ciudad, e.Direccion, &quot;
+                + &quot;e.EstadoPublicacion, e.Precio, e.Aforo, e.UrlFoto, e.EsDestacado &quot;
+                + &quot;FROM Evento e WHERE e.IdEvento=?&quot;;
+<span class="nc" id="L188">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+<span class="nc" id="L189">            ps.setLong(1, id);</span>
+<span class="nc" id="L190">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L191" title="All 2 branches missed.">                if (rs.next()) {</span>
+<span class="nc" id="L192">                    return mapRow(rs);</span>
+                }
+<span class="nc bnc" id="L194" title="All 2 branches missed.">            }</span>
+<span class="nc bnc" id="L195" title="All 4 branches missed.">        }</span>
+<span class="nc" id="L196">        return null;</span>
+    }
+
+    @Override
+    public long create(Evento e) throws Exception {
+<span class="nc" id="L201">        String sql = &quot;INSERT INTO Evento (IdOrganizador,Nombre,IdCategoria,Descripcion,FechaInicio,FechaFin,&quot;</span>
+                + &quot;Pais,Ciudad,Direccion,EstadoPublicacion,Precio,Aforo,UrlFoto,EsDestacado) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)&quot;;
+<span class="nc" id="L203">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {</span>
+<span class="nc" id="L204">            int i = 1;</span>
+<span class="nc" id="L205">            ps.setLong(i++, e.getIdOrganizador());</span>
+<span class="nc bnc" id="L206" title="All 4 branches missed.">            if (e.getNombre() == null || e.getNombre().isBlank()) {</span>
+<span class="nc" id="L207">                throw new IllegalArgumentException(&quot;Nombre requerido&quot;);</span>
+            }
+<span class="nc" id="L209">            ps.setString(i++, e.getNombre());</span>
+
+<span class="nc bnc" id="L211" title="All 2 branches missed.">            if (e.getIdCategoria() == null) {</span>
+<span class="nc" id="L212">                ps.setNull(i++, Types.BIGINT);</span>
+            } else {
+<span class="nc" id="L214">                setLongOrNull(ps, i++, e.getIdCategoria());</span>
+            }
+
+<span class="nc" id="L217">            ps.setString(i++, e.getDescripcion());</span>
+<span class="nc" id="L218">            ps.setTimestamp(i++, Timestamp.valueOf(e.getFechaInicio()));</span>
+<span class="nc" id="L219">            ps.setTimestamp(i++, Timestamp.valueOf(e.getFechaFin()));</span>
+<span class="nc" id="L220">            ps.setString(i++, e.getPais());</span>
+<span class="nc" id="L221">            ps.setString(i++, e.getCiudad());</span>
+<span class="nc" id="L222">            ps.setString(i++, e.getDireccion());</span>
+<span class="nc" id="L223">            ps.setString(i++, e.getEstadoPublicacion());</span>
+<span class="nc" id="L224">            ps.setDouble(i++, e.getPrecio());</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">            if (e.getAforo() == 0) {</span>
+<span class="nc" id="L226">                ps.setNull(i++, Types.INTEGER);</span>
+            } else {
+<span class="nc" id="L228">                ps.setInt(i++, e.getAforo());</span>
+            }
+<span class="nc" id="L230">            ps.setString(i++, e.getUrlFoto());</span>
+<span class="nc" id="L231">            ps.setBoolean(i++, e.getEsDestacado());</span>
+
+<span class="nc" id="L233">            ps.executeUpdate();</span>
+<span class="nc" id="L234">            try (ResultSet rs = ps.getGeneratedKeys()) {</span>
+<span class="nc bnc" id="L235" title="All 2 branches missed.">                if (rs.next()) {</span>
+<span class="nc" id="L236">                    return rs.getLong(1);</span>
+                }
+<span class="nc bnc" id="L238" title="All 2 branches missed.">            }</span>
+<span class="nc bnc" id="L239" title="All 4 branches missed.">        }</span>
+<span class="nc" id="L240">        return 0;</span>
+    }
+
+    @Override
+    public void update(Evento e) throws Exception {
+<span class="nc" id="L245">        String sql = &quot;UPDATE Evento SET Nombre=?, IdCategoria=?, Descripcion=?, FechaInicio=?, FechaFin=?, &quot;</span>
+                + &quot;Pais=?, Ciudad=?, Direccion=?, EstadoPublicacion=?, Precio=?, Aforo=?, UrlFoto=?, EsDestacado=? &quot;
+                + &quot;WHERE IdEvento=?&quot;;
+<span class="nc" id="L248">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+<span class="nc" id="L249">            int i = 1;</span>
+<span class="nc" id="L250">            ps.setString(i++, e.getNombre());</span>
+<span class="nc bnc" id="L251" title="All 2 branches missed.">            if (e.getIdCategoria() == null) {</span>
+<span class="nc" id="L252">                ps.setNull(i++, Types.BIGINT);</span>
+            } else {
+<span class="nc" id="L254">                ps.setLong(i++, e.getIdCategoria());</span>
+            }
+<span class="nc" id="L256">            ps.setString(i++, e.getDescripcion());</span>
+<span class="nc" id="L257">            ps.setTimestamp(i++, Timestamp.valueOf(e.getFechaInicio()));</span>
+<span class="nc" id="L258">            ps.setTimestamp(i++, Timestamp.valueOf(e.getFechaFin()));</span>
+<span class="nc" id="L259">            ps.setString(i++, e.getPais());</span>
+<span class="nc" id="L260">            ps.setString(i++, e.getCiudad());</span>
+<span class="nc" id="L261">            ps.setString(i++, e.getDireccion());</span>
+<span class="nc" id="L262">            ps.setString(i++, e.getEstadoPublicacion());</span>
+<span class="nc" id="L263">            ps.setDouble(i++, e.getPrecio());</span>
+<span class="nc bnc" id="L264" title="All 2 branches missed.">            if (e.getAforo() == 0) {</span>
+<span class="nc" id="L265">                ps.setNull(i++, Types.INTEGER);</span>
+            } else {
+<span class="nc" id="L267">                ps.setInt(i++, e.getAforo());</span>
+            }
+<span class="nc" id="L269">            ps.setString(i++, e.getUrlFoto());</span>
+<span class="nc" id="L270">            ps.setBoolean(i++, e.getEsDestacado());</span>
+<span class="nc" id="L271">            ps.setLong(i, e.getIdEvento());</span>
+<span class="nc" id="L272">            ps.executeUpdate();</span>
+        }
+<span class="nc" id="L274">    }</span>
+
+    @Override
+    public void delete(long id) throws Exception {
+<span class="nc" id="L278">        String sql = &quot;DELETE FROM Evento WHERE IdEvento=?&quot;;</span>
+<span class="nc" id="L279">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+<span class="nc" id="L280">            ps.setLong(1, id);</span>
+<span class="nc" id="L281">            ps.executeUpdate();</span>
+        }
+<span class="nc" id="L283">    }</span>
+
+    @Override
+    public List&lt;Evento&gt; listDestacados(int limit) throws Exception {
+<span class="nc" id="L287">        String sql = &quot;SELECT IdEvento, IdOrganizador, Nombre, IdCategoria, Descripcion, &quot;</span>
+                + &quot;       FechaInicio, FechaFin, Pais, Ciudad, Direccion, &quot;
+                + &quot;       EstadoPublicacion, Precio, Aforo, UrlFoto, EsDestacado &quot;
+                + &quot;FROM Evento &quot;
+                + &quot;WHERE EstadoPublicacion = 'publicado' &quot;
+                + &quot;  AND FechaInicio &gt;= NOW() &quot;
+                + &quot;ORDER BY FechaInicio ASC &quot;
+                + &quot;LIMIT ?&quot;;
+
+<span class="nc" id="L296">        List&lt;Evento&gt; out = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L298">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+
+<span class="nc" id="L300">            ps.setInt(1, limit);</span>
+
+<span class="nc" id="L302">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L303" title="All 2 branches missed.">                while (rs.next()) {</span>
+<span class="nc" id="L304">                    Evento e = new Evento();</span>
+<span class="nc" id="L305">                    e.setIdEvento(rs.getLong(&quot;IdEvento&quot;));</span>
+<span class="nc" id="L306">                    e.setIdOrganizador(rs.getLong(&quot;IdOrganizador&quot;));</span>
+<span class="nc" id="L307">                    e.setNombre(rs.getString(&quot;Nombre&quot;));</span>
+<span class="nc" id="L308">                    e.setIdCategoria(rs.getLong(&quot;IdCategoria&quot;));</span>
+<span class="nc" id="L309">                    e.setDescripcion(rs.getString(&quot;Descripcion&quot;));</span>
+
+<span class="nc" id="L311">                    Timestamp fi = rs.getTimestamp(&quot;FechaInicio&quot;);</span>
+<span class="nc bnc" id="L312" title="All 2 branches missed.">                    e.setFechaInicio(fi != null ? fi.toLocalDateTime() : null);</span>
+
+<span class="nc" id="L314">                    Timestamp ff = rs.getTimestamp(&quot;FechaFin&quot;);</span>
+<span class="nc bnc" id="L315" title="All 2 branches missed.">                    e.setFechaFin(ff != null ? ff.toLocalDateTime() : null);</span>
+
+<span class="nc" id="L317">                    e.setPais(rs.getString(&quot;Pais&quot;));</span>
+<span class="nc" id="L318">                    e.setCiudad(rs.getString(&quot;Ciudad&quot;));</span>
+<span class="nc" id="L319">                    e.setDireccion(rs.getString(&quot;Direccion&quot;));</span>
+<span class="nc" id="L320">                    e.setEstadoPublicacion(rs.getString(&quot;EstadoPublicacion&quot;));</span>
+<span class="nc" id="L321">                    e.setPrecio(rs.getDouble(&quot;Precio&quot;));</span>
+<span class="nc" id="L322">                    int af = rs.getInt(&quot;Aforo&quot;);</span>
+<span class="nc bnc" id="L323" title="All 2 branches missed.">                    e.setAforo(rs.wasNull() ? null : af);</span>
+<span class="nc" id="L324">                    e.setUrlFoto(rs.getString(&quot;UrlFoto&quot;));</span>
+<span class="nc" id="L325">                    e.setEsDestacado(rs.getBoolean(&quot;EsDestacado&quot;));</span>
+
+<span class="nc" id="L327">                    out.add(e);</span>
+<span class="nc" id="L328">                }</span>
+            }
+        }
+<span class="nc" id="L331">        return out;</span>
+    }
+
+    private Evento mapRow(ResultSet rs) throws Exception {
+<span class="nc" id="L335">        Evento e = new Evento();</span>
+<span class="nc" id="L336">        e.setIdEvento(rs.getLong(&quot;IdEvento&quot;));</span>
+<span class="nc" id="L337">        e.setIdOrganizador(rs.getLong(&quot;IdOrganizador&quot;));</span>
+<span class="nc" id="L338">        e.setNombre(rs.getString(&quot;Nombre&quot;));</span>
+<span class="nc" id="L339">        long idCat = rs.getLong(&quot;IdCategoria&quot;);</span>
+<span class="nc bnc" id="L340" title="All 2 branches missed.">        e.setIdCategoria(rs.wasNull() ? null : idCat);</span>
+<span class="nc" id="L341">        e.setDescripcion(rs.getString(&quot;Descripcion&quot;));</span>
+<span class="nc" id="L342">        Timestamp ini = rs.getTimestamp(&quot;FechaInicio&quot;);</span>
+<span class="nc" id="L343">        Timestamp fin = rs.getTimestamp(&quot;FechaFin&quot;);</span>
+<span class="nc bnc" id="L344" title="All 2 branches missed.">        e.setFechaInicio(ini != null ? ini.toLocalDateTime() : null);</span>
+<span class="nc bnc" id="L345" title="All 2 branches missed.">        e.setFechaFin(fin != null ? fin.toLocalDateTime() : null);</span>
+<span class="nc" id="L346">        e.setPais(rs.getString(&quot;Pais&quot;));</span>
+<span class="nc" id="L347">        e.setCiudad(rs.getString(&quot;Ciudad&quot;));</span>
+<span class="nc" id="L348">        e.setDireccion(rs.getString(&quot;Direccion&quot;));</span>
+<span class="nc" id="L349">        e.setEstadoPublicacion(rs.getString(&quot;EstadoPublicacion&quot;));</span>
+<span class="nc" id="L350">        e.setPrecio(rs.getDouble(&quot;Precio&quot;));</span>
+<span class="nc" id="L351">        int aforo = rs.getInt(&quot;Aforo&quot;);</span>
+<span class="nc bnc" id="L352" title="All 2 branches missed.">        e.setAforo(rs.wasNull() ? null : aforo);</span>
+<span class="nc" id="L353">        e.setUrlFoto(rs.getString(&quot;UrlFoto&quot;));</span>
+<span class="nc" id="L354">        e.setEsDestacado(rs.getBoolean(&quot;EsDestacado&quot;));</span>
+<span class="nc" id="L355">        return e;</span>
+    }
+
+    @Override
+    public List&lt;Evento&gt; listByCategoria(Long idCategoria) throws Exception {
+<span class="nc" id="L360">        String baseSql</span>
+                = &quot;SELECT IdEvento, IdOrganizador, Nombre, IdCategoria, Descripcion, FechaInicio, FechaFin, &quot;
+                + &quot;       Precio, Aforo, EstadoPublicacion &quot;
+                + &quot;FROM Evento &quot;
+                + &quot;WHERE EstadoPublicacion = 'publicado' &quot;;
+
+        // si idCategoria es null → sin filtro extra
+<span class="nc bnc" id="L367" title="All 2 branches missed.">        boolean filtrar = (idCategoria != null);</span>
+
+<span class="nc bnc" id="L369" title="All 2 branches missed.">        String sql = baseSql + (filtrar ? &quot; AND IdCategoria = ? &quot; : &quot;&quot;)</span>
+                + &quot; ORDER BY FechaInicio ASC&quot;;
+
+<span class="nc" id="L372">        List&lt;Evento&gt; out = new ArrayList&lt;&gt;();</span>
+
+<span class="nc" id="L374">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+
+<span class="nc bnc" id="L376" title="All 2 branches missed.">            if (filtrar) {</span>
+<span class="nc" id="L377">                ps.setLong(1, idCategoria);</span>
+            }
+
+<span class="nc" id="L380">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L381" title="All 2 branches missed.">                while (rs.next()) {</span>
+<span class="nc" id="L382">                    Evento e = new Evento();</span>
+<span class="nc" id="L383">                    e.setIdEvento(rs.getLong(&quot;IdEvento&quot;));</span>
+<span class="nc" id="L384">                    e.setIdOrganizador(rs.getLong(&quot;IdOrganizador&quot;));</span>
+<span class="nc" id="L385">                    e.setNombre(rs.getString(&quot;Nombre&quot;));</span>
+<span class="nc" id="L386">                    e.setIdCategoria((Long) rs.getLong(&quot;IdCategoria&quot;));</span>
+<span class="nc" id="L387">                    e.setDescripcion(rs.getString(&quot;Descripcion&quot;));</span>
+
+<span class="nc" id="L389">                    Timestamp fi = rs.getTimestamp(&quot;FechaInicio&quot;);</span>
+<span class="nc bnc" id="L390" title="All 2 branches missed.">                    e.setFechaInicio(fi != null ? fi.toLocalDateTime() : null);</span>
+
+<span class="nc" id="L392">                    Timestamp ff = rs.getTimestamp(&quot;FechaFin&quot;);</span>
+<span class="nc bnc" id="L393" title="All 2 branches missed.">                    e.setFechaFin(ff != null ? ff.toLocalDateTime() : null);</span>
+
+<span class="nc" id="L395">                    e.setPrecio(rs.getDouble(&quot;Precio&quot;));</span>
+<span class="nc" id="L396">                    e.setAforo(rs.getInt(&quot;Aforo&quot;));</span>
+<span class="nc" id="L397">                    e.setEstadoPublicacion(rs.getString(&quot;EstadoPublicacion&quot;));</span>
+
+<span class="nc" id="L399">                    out.add(e);</span>
+<span class="nc" id="L400">                }</span>
+            }
+        }
+<span class="nc" id="L403">        return out;</span>
+    }
+
+    private static void setLongOrNull(PreparedStatement ps, int idx, Long val) throws SQLException {
+<span class="nc bnc" id="L407" title="All 2 branches missed.">        if (val == null) {</span>
+<span class="nc" id="L408">            ps.setNull(idx, java.sql.Types.BIGINT);</span>
+        } else {
+<span class="nc" id="L410">            ps.setLong(idx, val);</span>
+        }
+<span class="nc" id="L412">    }</span>
+
+    private static void setIntOrNull(PreparedStatement ps, int idx, Integer val) throws SQLException {
+<span class="nc bnc" id="L415" title="All 2 branches missed.">        if (val == null) {</span>
+<span class="nc" id="L416">            ps.setNull(idx, java.sql.Types.INTEGER);</span>
+        } else {
+<span class="nc" id="L418">            ps.setInt(idx, val);</span>
+        }
+<span class="nc" id="L420">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

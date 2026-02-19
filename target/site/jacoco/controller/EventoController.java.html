@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EventoController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">controller</a> &gt; <span class="el_source">EventoController.java</span></div><h1>EventoController.java</h1><pre class="source lang-java linenums">package controller;
+
+import dao.CategoriaDAO;
+import dao_impl.CategoriaDAOImpl;
+import dao_impl.ComentarioDAOImpl;
+import dao_impl.EventoDAOImpl;
+import model.Evento;
+import service.EventoService;
+
+import javax.servlet.ServletException;
+import javax.servlet.annotation.WebServlet;
+import javax.servlet.http.*;
+import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import service.ComentarioService;
+
+@WebServlet(urlPatterns = {&quot;/eventos&quot;, &quot;/eventos/nuevo&quot;, &quot;/eventos/guardar&quot;, &quot;/eventos/detalle&quot;, &quot;/eventos/editar&quot;, &quot;/eventos/eliminar&quot;})
+<span class="nc" id="L19">public class EventoController extends HttpServlet {</span>
+
+<span class="nc" id="L21">    private final EventoService service = new EventoService(new EventoDAOImpl());</span>
+<span class="nc" id="L22">    private final DateTimeFormatter FMT = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd'T'HH:mm&quot;); // para &lt;input type=&quot;datetime-local&quot;&gt;</span>
+<span class="nc" id="L23">    private final CategoriaDAO categoriaDAO = new CategoriaDAOImpl();</span>
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L27">        String path = req.getServletPath();</span>
+        try {
+<span class="nc bnc" id="L29" title="All 5 branches missed.">            switch (path) {</span>
+                case &quot;/eventos&quot;:
+<span class="nc" id="L31">                    listar(req, resp);</span>
+<span class="nc" id="L32">                    break;</span>
+                case &quot;/eventos/nuevo&quot;:
+<span class="nc" id="L34">                    cargarCategorias(req);</span>
+<span class="nc" id="L35">                    req.getRequestDispatcher(&quot;/WEB-INF/views/eventos/eventos-form.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L36">                    break;</span>
+                case &quot;/eventos/detalle&quot;:
+<span class="nc" id="L38">                    verDetalle(req, resp);</span>
+<span class="nc" id="L39">                    break;</span>
+                case &quot;/eventos/editar&quot;:
+<span class="nc" id="L41">                    editar(req, resp);</span>
+<span class="nc" id="L42">                    break;</span>
+                default:
+<span class="nc" id="L44">                    resp.sendError(404);</span>
+            }
+<span class="nc" id="L46">        } catch (Exception e) {</span>
+<span class="nc" id="L47">            req.setAttribute(&quot;error&quot;, e.getMessage());</span>
+<span class="nc" id="L48">            req.getRequestDispatcher(&quot;/WEB-INF/views/error.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L49">        }</span>
+<span class="nc" id="L50">    }</span>
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+<span class="nc" id="L54">        String path = req.getServletPath();</span>
+        try {
+<span class="nc bnc" id="L56" title="All 3 branches missed.">            switch (path) {</span>
+                case &quot;/eventos/guardar&quot;:
+<span class="nc" id="L58">                    guardar(req, resp);</span>
+<span class="nc" id="L59">                    break;</span>
+                case &quot;/eventos/eliminar&quot;:
+<span class="nc" id="L61">                    eliminar(req, resp);</span>
+<span class="nc" id="L62">                    break;</span>
+                default:
+<span class="nc" id="L64">                    resp.sendError(404);</span>
+            }
+<span class="nc" id="L66">        } catch (Exception e) {</span>
+<span class="nc" id="L67">            req.setAttribute(&quot;error&quot;, e.getMessage());</span>
+<span class="nc" id="L68">            req.getRequestDispatcher(&quot;/WEB-INF/views/error.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L69">        }</span>
+<span class="nc" id="L70">    }</span>
+
+    private void listar(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+<span class="nc" id="L73">        int page = parseInt(req.getParameter(&quot;page&quot;), 1);</span>
+<span class="nc" id="L74">        int size = parseInt(req.getParameter(&quot;size&quot;), 12);</span>
+<span class="nc" id="L75">        String q = req.getParameter(&quot;q&quot;);</span>
+
+<span class="nc" id="L77">        String idCatStr = req.getParameter(&quot;idCategoria&quot;);</span>
+<span class="nc" id="L78">        Long idCategoria = null;</span>
+<span class="nc bnc" id="L79" title="All 4 branches missed.">        if (idCatStr != null &amp;&amp; !idCatStr.isBlank()) {</span>
+            try {
+<span class="nc" id="L81">                idCategoria = Long.parseLong(idCatStr);</span>
+<span class="nc" id="L82">            } catch (NumberFormatException e) {</span>
+<span class="nc" id="L83">                idCategoria = null;</span>
+<span class="nc" id="L84">            }</span>
+        }
+
+<span class="nc" id="L87">        req.setAttribute(&quot;eventos&quot;, service.list(page, size, q, idCategoria));</span>
+<span class="nc" id="L88">        req.setAttribute(&quot;page&quot;, page);</span>
+<span class="nc" id="L89">        req.setAttribute(&quot;size&quot;, size);</span>
+<span class="nc" id="L90">        req.setAttribute(&quot;q&quot;, q);</span>
+<span class="nc" id="L91">        req.setAttribute(&quot;total&quot;, service.count(q, idCategoria));</span>
+
+        // 👉 para el combo de filtro
+<span class="nc" id="L94">        req.setAttribute(&quot;categorias&quot;, categoriaDAO.listAll());</span>
+<span class="nc" id="L95">        req.setAttribute(&quot;idCategoriaSeleccionada&quot;, idCategoria);</span>
+
+<span class="nc" id="L97">        req.getRequestDispatcher(&quot;/WEB-INF/views/eventos/eventos-list.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L98">    }</span>
+
+    private void verDetalle(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+<span class="nc" id="L101">        long id = Long.parseLong(req.getParameter(&quot;id&quot;));</span>
+<span class="nc" id="L102">        Evento e = service.get(id);</span>
+<span class="nc bnc" id="L103" title="All 2 branches missed.">        if (e == null) {</span>
+<span class="nc" id="L104">            resp.sendError(404);</span>
+<span class="nc" id="L105">            return;</span>
+        }
+<span class="nc" id="L107">        req.setAttribute(&quot;evento&quot;, e);</span>
+
+<span class="nc" id="L109">        ComentarioService cService = new ComentarioService(new ComentarioDAOImpl());</span>
+<span class="nc" id="L110">        req.setAttribute(&quot;comentarios&quot;, cService.listByEvento(id, 1, 20));</span>
+
+<span class="nc" id="L112">        req.getRequestDispatcher(&quot;/WEB-INF/views/eventos/eventos-detalle.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L113">    }</span>
+
+    private void editar(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+<span class="nc" id="L116">        long id = Long.parseLong(req.getParameter(&quot;id&quot;));</span>
+<span class="nc" id="L117">        Evento e = service.get(id);</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (e == null) {</span>
+<span class="nc" id="L119">            resp.sendError(404);</span>
+<span class="nc" id="L120">            return;</span>
+        }
+<span class="nc" id="L122">        req.setAttribute(&quot;evento&quot;, e);</span>
+
+<span class="nc" id="L124">        cargarCategorias(req);</span>
+
+<span class="nc" id="L126">        req.getRequestDispatcher(&quot;/WEB-INF/views/eventos/eventos-form.jsp&quot;).forward(req, resp);</span>
+<span class="nc" id="L127">    }</span>
+
+    private void cargarCategorias(HttpServletRequest req) throws Exception {
+<span class="nc" id="L130">        req.setAttribute(&quot;categorias&quot;, categoriaDAO.listAll());</span>
+<span class="nc" id="L131">    }</span>
+
+    private void guardar(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+<span class="nc" id="L134">        req.setCharacterEncoding(&quot;UTF-8&quot;);</span>
+
+<span class="nc" id="L136">        model.SessionUser su = (model.SessionUser) req.getSession().getAttribute(&quot;user&quot;);</span>
+<span class="nc bnc" id="L137" title="All 2 branches missed.">        if (su == null) {</span>
+<span class="nc" id="L138">            resp.sendRedirect(req.getContextPath() + &quot;/login&quot;);</span>
+<span class="nc" id="L139">            return;</span>
+        }
+
+<span class="nc" id="L142">        String idStr = req.getParameter(&quot;idEvento&quot;);</span>
+
+<span class="nc" id="L144">        Evento e = new Evento();</span>
+<span class="nc" id="L145">        e.setIdOrganizador(su.getIdUsuario()); // long seguro</span>
+<span class="nc" id="L146">        e.setNombre(req.getParameter(&quot;nombre&quot;));</span>
+<span class="nc" id="L147">        e.setDescripcion(req.getParameter(&quot;descripcion&quot;));</span>
+
+<span class="nc" id="L149">        String idCatStr = req.getParameter(&quot;idCategoria&quot;);</span>
+<span class="nc bnc" id="L150" title="All 4 branches missed.">        if (idCatStr == null || idCatStr.isBlank()) {</span>
+<span class="nc" id="L151">            e.setIdCategoria(null);</span>
+        } else {
+            try {
+<span class="nc bnc" id="L154" title="All 4 branches missed.">                e.setIdCategoria((idCatStr == null || idCatStr.isBlank()) ? null : Long.parseLong(idCatStr)); // usa Long en tu POJO para permitir null</span>
+<span class="nc" id="L155">            } catch (NumberFormatException ex) {</span>
+<span class="nc" id="L156">                e.setIdCategoria(null);</span>
+<span class="nc" id="L157">            }</span>
+        }
+
+<span class="nc" id="L160">        e.setFechaInicio(LocalDateTime.parse(req.getParameter(&quot;fechaInicio&quot;), FMT));</span>
+<span class="nc" id="L161">        e.setFechaFin(LocalDateTime.parse(req.getParameter(&quot;fechaFin&quot;), FMT));</span>
+<span class="nc" id="L162">        e.setPais(req.getParameter(&quot;pais&quot;));</span>
+<span class="nc" id="L163">        e.setCiudad(req.getParameter(&quot;ciudad&quot;));</span>
+<span class="nc" id="L164">        e.setDireccion(req.getParameter(&quot;direccion&quot;));</span>
+<span class="nc" id="L165">        e.setEstadoPublicacion(req.getParameter(&quot;estadoPublicacion&quot;)); // 'borrador','publicado','oculto'</span>
+
+<span class="nc" id="L167">        String precioStr = req.getParameter(&quot;precio&quot;);</span>
+<span class="nc bnc" id="L168" title="All 4 branches missed.">        e.setPrecio((precioStr == null || precioStr.isBlank()) ? 0.0 : Double.parseDouble(precioStr));</span>
+
+<span class="nc" id="L170">        String aforoStr = req.getParameter(&quot;aforo&quot;);</span>
+<span class="nc bnc" id="L171" title="All 4 branches missed.">        e.setAforo((aforoStr == null || aforoStr.isBlank()) ? null : Integer.parseInt(aforoStr));</span>
+        
+<span class="nc" id="L173">        String esDestParam = req.getParameter(&quot;esDestacado&quot;);</span>
+<span class="nc bnc" id="L174" title="All 2 branches missed.">        e.setEsDestacado(esDestParam != null);</span>
+
+<span class="nc" id="L176">        e.setUrlFoto(req.getParameter(&quot;urlFoto&quot;));</span>
+
+<span class="nc bnc" id="L178" title="All 4 branches missed.">        if (idStr == null || idStr.isBlank()) {</span>
+<span class="nc" id="L179">            long idNuevo = service.create(e);</span>
+<span class="nc" id="L180">            resp.sendRedirect(req.getContextPath() + &quot;/eventos/detalle?id=&quot; + idNuevo);</span>
+<span class="nc" id="L181">        } else {</span>
+<span class="nc" id="L182">            e.setIdEvento(Long.parseLong(idStr)); // mantén long en el POJO</span>
+<span class="nc" id="L183">            service.update(e);</span>
+<span class="nc" id="L184">            resp.sendRedirect(req.getContextPath() + &quot;/eventos/detalle?id=&quot; + e.getIdEvento());</span>
+        }
+<span class="nc" id="L186">    }</span>
+
+    private void eliminar(HttpServletRequest req, HttpServletResponse resp) throws Exception {
+<span class="nc" id="L189">        long id = Long.parseLong(req.getParameter(&quot;id&quot;));</span>
+<span class="nc" id="L190">        service.delete(id);</span>
+<span class="nc" id="L191">        resp.sendRedirect(req.getContextPath() + &quot;/eventos&quot;);</span>
+<span class="nc" id="L192">    }</span>
+
+    private int parseInt(String s, int def) {
+        try {
+<span class="nc" id="L196">            return Integer.parseInt(s);</span>
+<span class="nc" id="L197">        } catch (Exception e) {</span>
+<span class="nc" id="L198">            return def;</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

@@ -1,0 +1,38 @@
+<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet"
+          href="${pageContext.request.contextPath}/RESOURCES/css/calendario.css"
+          type="text/css"/>
+
+<style>
+    .carousel-img-fixed {
+        width: 100%;
+        height: 320px;        /* altura fija para todas las imágenes */
+        object-fit: cover;    /* recorta sin deformar */
+    }
+
+    @media (min-width: 768px) {
+        .carousel-img-fixed {
+            height: 380px;    /* un poco más alto en pantallas grandes, opcional */
+        }
+    }
+</style>
+
+
+<c:choose>
+    <c:when test="${not empty pageScope.pageTitle}">
+        <title><c:out value="${pageTitle}" /></title>
+    </c:when>
+    <c:otherwise>
+        <title>QhatuXApp</title>
+    </c:otherwise>
+</c:choose>
+
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"/>
+
+<!-- Bootstrap Icons (si usas bi bi-...) -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet"/>

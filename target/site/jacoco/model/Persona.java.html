@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Persona.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">model</a> &gt; <span class="el_source">Persona.java</span></div><h1>Persona.java</h1><pre class="source lang-java linenums">package model;
+
+import java.time.LocalDate;
+
+public class Persona {
+
+    private int idPersona;
+    private String tipoDocumento;
+    private String nroDocumento;
+    private String nombres;
+    private String apellidos;
+    private String email;
+    private String telefono;
+    private String pais;
+    private String ciudad;
+    private String estado;
+    private LocalDate fechaRegistro;
+
+    // Constructor vacío
+<span class="nc" id="L20">    public Persona() {</span>
+<span class="nc" id="L21">    }</span>
+
+    // Constructor completo
+    public Persona(int idPersona, String tipoDocumento, String nroDocumento, String nombres,
+            String apellidos, String email, String telefono, String pais,
+<span class="nc" id="L26">            String ciudad, String estado, LocalDate fechaRegistro) {</span>
+<span class="nc" id="L27">        this.idPersona = idPersona;</span>
+<span class="nc" id="L28">        this.tipoDocumento = tipoDocumento;</span>
+<span class="nc" id="L29">        this.nroDocumento = nroDocumento;</span>
+<span class="nc" id="L30">        this.nombres = nombres;</span>
+<span class="nc" id="L31">        this.apellidos = apellidos;</span>
+<span class="nc" id="L32">        this.email = email;</span>
+<span class="nc" id="L33">        this.telefono = telefono;</span>
+<span class="nc" id="L34">        this.pais = pais;</span>
+<span class="nc" id="L35">        this.ciudad = ciudad;</span>
+<span class="nc" id="L36">        this.estado = estado;</span>
+<span class="nc" id="L37">        this.fechaRegistro = fechaRegistro;</span>
+<span class="nc" id="L38">    }</span>
+
+    // Getters y Setters
+    public int getIdPersona() {
+<span class="nc" id="L42">        return idPersona;</span>
+    }
+
+    public void setIdPersona(int idPersona) {
+<span class="nc" id="L46">        this.idPersona = idPersona;</span>
+<span class="nc" id="L47">    }</span>
+
+    public String getTipoDocumento() {
+<span class="nc" id="L50">        return tipoDocumento;</span>
+    }
+
+    public void setTipoDocumento(String tipoDocumento) {
+<span class="nc" id="L54">        this.tipoDocumento = tipoDocumento;</span>
+<span class="nc" id="L55">    }</span>
+
+    public String getNroDocumento() {
+<span class="nc" id="L58">        return nroDocumento;</span>
+    }
+
+    public void setNroDocumento(String nroDocumento) {
+<span class="nc" id="L62">        this.nroDocumento = nroDocumento;</span>
+<span class="nc" id="L63">    }</span>
+
+    public String getNombres() {
+<span class="nc" id="L66">        return nombres;</span>
+    }
+
+    public void setNombres(String nombres) {
+<span class="nc" id="L70">        this.nombres = nombres;</span>
+<span class="nc" id="L71">    }</span>
+
+    public String getApellidos() {
+<span class="nc" id="L74">        return apellidos;</span>
+    }
+
+    public void setApellidos(String apellidos) {
+<span class="nc" id="L78">        this.apellidos = apellidos;</span>
+<span class="nc" id="L79">    }</span>
+
+    public String getEmail() {
+<span class="nc" id="L82">        return email;</span>
+    }
+
+    public void setEmail(String email) {
+<span class="nc" id="L86">        this.email = email;</span>
+<span class="nc" id="L87">    }</span>
+
+    public String getTelefono() {
+<span class="nc" id="L90">        return telefono;</span>
+    }
+
+    public void setTelefono(String telefono) {
+<span class="nc" id="L94">        this.telefono = telefono;</span>
+<span class="nc" id="L95">    }</span>
+
+    public String getPais() {
+<span class="nc" id="L98">        return pais;</span>
+    }
+
+    public void setPais(String pais) {
+<span class="nc" id="L102">        this.pais = pais;</span>
+<span class="nc" id="L103">    }</span>
+
+    public String getCiudad() {
+<span class="nc" id="L106">        return ciudad;</span>
+    }
+
+    public void setCiudad(String ciudad) {
+<span class="nc" id="L110">        this.ciudad = ciudad;</span>
+<span class="nc" id="L111">    }</span>
+
+    public String getEstado() {
+<span class="nc" id="L114">        return estado;</span>
+    }
+
+    public void setEstado(String estado) {
+<span class="nc" id="L118">        this.estado = estado;</span>
+<span class="nc" id="L119">    }</span>
+
+    public LocalDate getFechaRegistro() {
+<span class="nc" id="L122">        return fechaRegistro;</span>
+    }
+
+    public void setFechaRegistro(LocalDate fechaRegistro) {
+<span class="nc" id="L126">        this.fechaRegistro = fechaRegistro;</span>
+<span class="nc" id="L127">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

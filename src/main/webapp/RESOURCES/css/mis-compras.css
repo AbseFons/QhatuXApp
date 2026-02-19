@@ -1,0 +1,116 @@
+.purchases-page {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.purchases-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.purchases-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: .1rem;
+}
+
+.purchases-subtitle {
+    font-size: .9rem;
+    color: #6c757d;
+}
+
+/* Estado vacío */
+.purchases-empty {
+    border-radius: 1.25rem;
+    padding: 1.75rem;
+    background: #f8f9fa;
+    text-align: center;
+    color: #6c757d;
+}
+
+/* Lista de compras como tarjetas */
+.purchases-list {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+}
+
+/* Tarjeta tipo ticket */
+.purchase-card {
+    border-radius: 1.25rem;
+    border: none;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.05);
+    background: #ffffff;
+    padding: 1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (min-width: 768px) {
+    .purchase-card {
+        padding: 1.1rem 1.5rem;
+    }
+}
+
+.purchase-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: .6rem;
+}
+
+.purchase-event-name {
+    font-weight: 600;
+    margin-bottom: .1rem;
+}
+
+.purchase-ticket-code {
+    font-size: .8rem;
+    color: #6c757d;
+}
+
+.purchase-meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+    font-size: .85rem;
+    color: #6c757d;
+    margin-bottom: .4rem;
+}
+
+.purchase-meta-item i {
+    margin-right: .25rem;
+}
+
+.purchase-footer {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    margin-top: .4rem;
+}
+
+.purchase-amounts {
+    font-size: .9rem;
+}
+
+.purchase-total {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+/* Estado */
+.purchase-status {
+    font-size: .8rem;
+}
+
+/* Botón ver evento */
+.purchase-actions {
+    display: flex;
+    gap: .5rem;
+}

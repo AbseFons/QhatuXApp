@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Compra.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">model</a> &gt; <span class="el_source">Compra.java</span></div><h1>Compra.java</h1><pre class="source lang-java linenums">package model;
+
+import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.Date;
+
+<span class="nc" id="L8">public class Compra {</span>
+
+    private long idCompra;
+    private long idUsuario;
+    private long idEvento;
+    private int cantidad;
+    private Double precioUnitario;
+    private LocalDateTime fechaCompra;
+    private String estado;
+
+    /*--------Evento---------*/
+    
+    private LocalDateTime fechaEvento;
+    private String nombreEvento;
+
+    /*---------Métodos---------*/
+    
+    public String getCodigoTicket() {
+<span class="nc bnc" id="L26" title="All 2 branches missed.">        if (idCompra == 0) {</span>
+<span class="nc" id="L27">            return null;</span>
+        }
+        int year;
+<span class="nc bnc" id="L30" title="All 2 branches missed.">        if (fechaCompra != null) {</span>
+<span class="nc" id="L31">            year = fechaCompra.getYear();</span>
+        } else {
+<span class="nc" id="L33">            year = LocalDate.now().getYear();</span>
+        }
+        // Formato: QX-2025-123
+<span class="nc" id="L36">        return String.format(&quot;QX-%d-%d&quot;, year, idCompra);</span>
+    }
+
+    public Double getPrecioTotal() {
+<span class="nc bnc" id="L40" title="All 2 branches missed.">        return (precioUnitario != null ? precioUnitario : 0.0) * cantidad;</span>
+    }
+
+    public Date getFechaCompraDate() {
+<span class="nc bnc" id="L44" title="All 2 branches missed.">        return fechaCompra != null ? Timestamp.valueOf(fechaCompra) : null;</span>
+    }
+
+    public Date getFechaEventoDate() {
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        return fechaEvento != null ? Timestamp.valueOf(fechaEvento) : null;</span>
+    }
+
+    
+    /*--------Setters---------*/
+    
+    public long getIdCompra() {
+<span class="nc" id="L55">        return idCompra;</span>
+    }
+
+    public void setIdCompra(long idCompra) {
+<span class="nc" id="L59">        this.idCompra = idCompra;</span>
+<span class="nc" id="L60">    }</span>
+
+    public String getEstado() {
+<span class="nc" id="L63">        return estado;</span>
+    }
+
+    public void setEstado(String estado) {
+<span class="nc" id="L67">        this.estado = estado;</span>
+<span class="nc" id="L68">    }</span>
+
+    public long getIdUsuario() {
+<span class="nc" id="L71">        return idUsuario;</span>
+    }
+
+    public void setIdUsuario(long idUsuario) {
+<span class="nc" id="L75">        this.idUsuario = idUsuario;</span>
+<span class="nc" id="L76">    }</span>
+
+    public long getIdEvento() {
+<span class="nc" id="L79">        return idEvento;</span>
+    }
+
+    public void setIdEvento(long idEvento) {
+<span class="nc" id="L83">        this.idEvento = idEvento;</span>
+<span class="nc" id="L84">    }</span>
+
+    public int getCantidad() {
+<span class="nc" id="L87">        return cantidad;</span>
+    }
+
+    public void setCantidad(int cantidad) {
+<span class="nc" id="L91">        this.cantidad = cantidad;</span>
+<span class="nc" id="L92">    }</span>
+
+    public double getPrecioUnitario() {
+<span class="nc" id="L95">        return precioUnitario;</span>
+    }
+
+    public void setPrecioUnitario(double precioUnitario) {
+<span class="nc" id="L99">        this.precioUnitario = precioUnitario;</span>
+<span class="nc" id="L100">    }</span>
+
+    public LocalDateTime getFechaCompra() {
+<span class="nc" id="L103">        return fechaCompra;</span>
+    }
+
+    public void setFechaCompra(LocalDateTime fechaCompra) {
+<span class="nc" id="L107">        this.fechaCompra = fechaCompra;</span>
+<span class="nc" id="L108">    }</span>
+
+    public String getNombreEvento() {
+<span class="nc" id="L111">        return nombreEvento;</span>
+    }
+
+    public void setNombreEvento(String nombreEvento) {
+<span class="nc" id="L115">        this.nombreEvento = nombreEvento;</span>
+<span class="nc" id="L116">    }</span>
+
+    public LocalDateTime getFechaEvento() {
+<span class="nc" id="L119">        return fechaEvento;</span>
+    }
+
+    public void setFechaEvento(LocalDateTime fechaEvento) {
+<span class="nc" id="L123">        this.fechaEvento = fechaEvento;</span>
+<span class="nc" id="L124">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>

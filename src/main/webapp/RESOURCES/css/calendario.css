@@ -1,0 +1,189 @@
+.calendar-page {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+/* Header de la página */
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.calendar-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: .1rem;
+}
+
+.calendar-subtitle {
+    font-size: .9rem;
+    color: #6c757d;
+}
+
+/* Tarjeta de sección (próximos / pasados) */
+.calendar-section-card {
+    border-radius: 1.25rem;
+    border: none;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.05);
+    background: #ffffff;
+    padding: 1.4rem 1.5rem;
+    margin-bottom: 1.75rem;
+}
+
+/* Estado vacío */
+.calendar-empty {
+    border-radius: 1.25rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    color: #6c757d;
+}
+
+/* Encabezado de sección */
+.calendar-section-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: .4rem;
+}
+
+.calendar-section-subtitle {
+    font-size: .85rem;
+    color: #6c757d;
+    margin-bottom: 1rem;
+}
+
+/* Encabezado por día */
+.calendar-day-header {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .25rem .7rem;
+    border-radius: 999px;
+    background: #f1f3f5;
+    color: #495057;
+    font-size: .8rem;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    margin-bottom: .3rem;
+}
+
+/* Lista de eventos de ese día */
+.calendar-day-block {
+    margin-bottom: 1rem;
+}
+
+/* Tarjeta de evento en agenda */
+.calendar-event-card {
+    border-radius: .9rem;
+    background: #f8f9fa;
+    padding: .7rem .9rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: .75rem;
+    margin-top: .3rem;
+    transition: background .2s ease, transform .15s ease;
+}
+
+.calendar-event-card:hover {
+    background: #e9f1ff;
+    transform: translateY(-1px);
+}
+
+.calendar-event-main {
+    flex: 1;
+}
+
+.calendar-event-title {
+    font-weight: 500;
+    margin-bottom: .05rem;
+}
+
+.calendar-event-meta {
+    font-size: .8rem;
+    color: #6c757d;
+}
+
+.calendar-event-meta span + span::before {
+    content: "·";
+    margin: 0 .25rem;
+    color: #adb5bd;
+}
+
+.calendar-event-meta span {
+    white-space: nowrap;
+}
+
+.calendar-event-side {
+    text-align: right;
+    font-size: .8rem;
+}
+
+.calendar-event-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    border-radius: 999px;
+    padding: .2rem .6rem;
+    font-size: .75rem;
+}
+
+/* Icono de chevron */
+.calendar-event-chevron {
+    margin-left: .4rem;
+}
+
+/* Sección de “Eventos pasados” */
+.calendar-badge-past {
+    background: #e6f4ea;
+    color: #137333;
+}
+
+/* Fondo global más suave */
+body {
+    background: #f5f7fa !important;
+}
+
+/* Tarjeta general del calendario */
+.calendar-section-card {
+    background: #ffffff;
+    border-radius: 1.25rem;
+    border: 1px solid #e9ecef;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.04);
+    padding: 1.6rem 1.7rem;
+}
+
+/* Encabezado del día */
+.calendar-day-header {
+    background: #e8f0ff;
+    color: #2f4d9c;
+    border: 1px solid #c9dbff;
+}
+
+/* Card del evento */
+.calendar-event-card {
+    background: #ffffff;
+    border: 1px solid #eef1f5;
+    border-radius: 1rem;
+    transition: all .2s ease;
+}
+
+.calendar-event-card:hover {
+    background: #f1f6ff;
+    transform: translateY(-2px);
+    border-color: #d0e1ff;
+}
+
+/* Meta */
+.calendar-event-meta {
+    color: #748092;
+}
+
+/* Badge de asistido (más suave) */
+.calendar-badge-past {
+    background: #dff3e3;
+    color: #0f5132;
+    border: 1px solid #bce2ca;
+}

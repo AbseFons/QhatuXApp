@@ -1,0 +1,83 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<!-- Header JSPF - QhatuXApp -->
+<c:set var="ctx" value="${pageContext.request.contextPath}" />
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm py-3">
+    <div class="container-fluid">
+
+        <!-- Logo -->
+        <a class="navbar-brand d-flex align-items-center" href="${ctx}/home">
+            <img src="${ctx}/RESOURCES/images/qhatux-logo.png"
+                 alt="QhatuX"
+                 height="36"
+                 class="me-2">
+        </a>
+
+        <!-- Botón hamburguesa -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                data-bs-target="#mainNavbar" aria-controls="mainNavbar" 
+                aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Contenido -->
+        <div class="collapse navbar-collapse" id="mainNavbar">
+
+            <!-- Links principales -->
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+                <li class="nav-item mx-2">
+                    <a class="nav-link fw-semibold" href="${ctx}/home">Inicio</a>
+                </li>
+
+                <li class="nav-item mx-2">
+                    <a class="nav-link fw-semibold" href="${ctx}/eventos">Eventos</a>
+                </li>
+
+                <li class="nav-item mx-2">
+                    <a class="nav-link fw-semibold" href="${ctx}/mi-calendario">
+                        <i class="bi bi-calendar3 me-1"></i> Calendario
+                    </a>
+                </li>
+
+            </ul>
+
+            <!-- Botón Nuevo Evento (solo ADMIN) -->
+            <c:if test="${not empty sessionScope.user && sessionScope.user.rol == 'ADMIN'}">
+                <a href="${ctx}/eventos/nuevo" 
+                   class="btn btn-outline-primary fw-semibold me-4 px-3 py-1">
+                    <i class="bi bi-plus-circle me-1"></i> Nuevo evento
+                </a>
+            </c:if>
+
+            <!-- Usuario logueado -->
+            <c:if test="${not empty sessionScope.user}">
+                <div class="dropdown">
+                    <a class="d-flex align-items-center text-dark text-decoration-none dropdown-toggle" 
+                       href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+
+                        <i class="bi bi-person-circle fs-4 me-2"></i>
+                        <span class="fw-semibold">
+                            ${sessionScope.user.nombre != null ? sessionScope.user.nombre : sessionScope.user.username}
+                        </span>
+                    </a>
+
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                        <li><a class="dropdown-item" href="${ctx}/mi-perfil">Mi perfil</a></li>
+                        <li><a class="dropdown-item" href="${ctx}/mis-compras">Mis compras</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="${ctx}/logout">Cerrar sesión</a></li>
+                    </ul>
+                </div>
+            </c:if>
+
+            <!-- Si NO está logueado -->
+            <c:if test="${empty sessionScope.user}">
+                <a class="btn btn-primary px-4 py-2 fw-semibold" href="${ctx}/login">Iniciar sesión</a>
+            </c:if>
+
+        </div>
+    </div>
+</nav>

@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ComentarioDAOImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">QhatuXApp</a> &gt; <a href="index.source.html" class="el_package">dao_impl</a> &gt; <span class="el_source">ComentarioDAOImpl.java</span></div><h1>ComentarioDAOImpl.java</h1><pre class="source lang-java linenums">package dao_impl;
+
+import dao.ComentarioDAO;
+import model.Comentario;
+import util.MySQLConexion;
+
+import java.sql.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+<span class="nc" id="L12">public class ComentarioDAOImpl implements ComentarioDAO {</span>
+
+    private Comentario map(ResultSet rs) throws Exception {
+<span class="nc" id="L15">        Comentario c = new Comentario();</span>
+<span class="nc" id="L16">        c.setIdComentario(rs.getLong(&quot;IdComentario&quot;));</span>
+<span class="nc" id="L17">        c.setIdEvento(rs.getLong(&quot;IdEvento&quot;));</span>
+<span class="nc" id="L18">        c.setIdUsuario(rs.getLong(&quot;IdUsuario&quot;));</span>
+<span class="nc" id="L19">        c.setTexto(rs.getString(&quot;Texto&quot;));</span>
+<span class="nc" id="L20">        Timestamp f = rs.getTimestamp(&quot;Fecha&quot;);</span>
+<span class="nc bnc" id="L21" title="All 2 branches missed.">        c.setFecha(f != null ? f.toLocalDateTime() : null);</span>
+<span class="nc" id="L22">        c.setAutorNombre(rs.getString(&quot;Autor&quot;));</span>
+<span class="nc" id="L23">        return c;</span>
+    }
+
+    @Override
+    public List&lt;Comentario&gt; listByEvento(long idEvento, int page, int size) throws Exception {
+<span class="nc" id="L28">        String sql = &quot;SELECT c.IdComentario,c.IdEvento,c.IdUsuario,c.Texto,c.Fecha, &quot;</span>
+                + &quot;CONCAT(p.Nombres,' ',IFNULL(p.Apellidos,'')) AS Autor &quot;
+                + &quot;FROM Comentario c &quot;
+                + &quot;JOIN Usuario u ON c.IdUsuario=u.IdUsuario &quot;
+                + &quot;JOIN Persona p ON u.IdPersona=p.IdPersona &quot;
+                + &quot;WHERE c.IdEvento=? &quot;
+                + &quot;ORDER BY c.Fecha DESC LIMIT ? OFFSET ?&quot;;
+<span class="nc" id="L35">        List&lt;Comentario&gt; list = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L36">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+<span class="nc" id="L37">            ps.setLong(1, idEvento);</span>
+<span class="nc" id="L38">            ps.setInt(2, size);</span>
+<span class="nc" id="L39">            ps.setInt(3, (page - 1) * size);</span>
+<span class="nc" id="L40">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L41" title="All 2 branches missed.">                while (rs.next()) {</span>
+<span class="nc" id="L42">                    list.add(map(rs));</span>
+                }
+            }
+        }
+<span class="nc" id="L46">        return list;</span>
+    }
+
+    @Override
+    public long create(Comentario c) throws Exception {
+<span class="nc" id="L51">        String sql = &quot;INSERT INTO Comentario (IdEvento,IdUsuario,Texto) VALUES (?,?,?)&quot;;</span>
+<span class="nc" id="L52">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {</span>
+<span class="nc" id="L53">            ps.setLong(1, c.getIdEvento());</span>
+<span class="nc" id="L54">            ps.setLong(2, c.getIdUsuario());</span>
+<span class="nc" id="L55">            ps.setString(3, c.getTexto());</span>
+<span class="nc" id="L56">            ps.executeUpdate();</span>
+<span class="nc" id="L57">            try (ResultSet rs = ps.getGeneratedKeys()) {</span>
+<span class="nc bnc" id="L58" title="All 2 branches missed.">                if (rs.next()) {</span>
+<span class="nc" id="L59">                    return rs.getLong(1);</span>
+                }
+<span class="nc bnc" id="L61" title="All 2 branches missed.">            }</span>
+<span class="nc bnc" id="L62" title="All 4 branches missed.">        }</span>
+<span class="nc" id="L63">        return 0;</span>
+    }
+
+    @Override
+    public void delete(long idComentario, long solicitante, boolean esAdmin) throws Exception {
+<span class="nc" id="L68">        String sqlSelf = &quot;DELETE FROM Comentario WHERE IdComentario=? AND IdUsuario=?&quot;;</span>
+<span class="nc" id="L69">        String sqlAdmin = &quot;DELETE FROM Comentario WHERE IdComentario=?&quot;;</span>
+<span class="nc" id="L70">        try (Connection cn = MySQLConexion.getConexion()) {</span>
+<span class="nc bnc" id="L71" title="All 2 branches missed.">            try (PreparedStatement ps = cn.prepareStatement(esAdmin ? sqlAdmin : sqlSelf)) {</span>
+<span class="nc" id="L72">                ps.setLong(1, idComentario);</span>
+<span class="nc bnc" id="L73" title="All 2 branches missed.">                if (!esAdmin) {</span>
+<span class="nc" id="L74">                    ps.setLong(2, solicitante);</span>
+                }
+<span class="nc" id="L76">                ps.executeUpdate();</span>
+            }
+        }
+<span class="nc" id="L79">    }</span>
+
+    @Override
+    public int countByUsuario(long idUsuario) throws Exception {
+<span class="nc" id="L83">        String sql = &quot;SELECT COUNT(*) AS total &quot;</span>
+                + &quot;FROM Comentario &quot;
+                + &quot;WHERE IdUsuario = ?&quot;;
+<span class="nc" id="L86">        try (Connection cn = MySQLConexion.getConexion(); PreparedStatement ps = cn.prepareStatement(sql)) {</span>
+
+<span class="nc" id="L88">            ps.setLong(1, idUsuario);</span>
+
+<span class="nc" id="L90">            try (ResultSet rs = ps.executeQuery()) {</span>
+<span class="nc bnc" id="L91" title="All 2 branches missed.">                if (rs.next()) {</span>
+<span class="nc" id="L92">                    return rs.getInt(&quot;total&quot;);</span>
+                }
+<span class="nc bnc" id="L94" title="All 2 branches missed.">            }</span>
+<span class="nc bnc" id="L95" title="All 4 branches missed.">        }</span>
+<span class="nc" id="L96">        return 0;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.12.202403310830</span></div></body></html>
