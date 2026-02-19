@@ -1,0 +1,30 @@
+services:
+  testlink-db:
+    image: mariadb:10.6
+    container_name: testlink-db
+    environment:
+      - MARIADB_ROOT_PASSWORD=rootpass
+      - MARIADB_DATABASE=testlink
+      - MARIADB_USER=testlink
+      - MARIADB_PASSWORD=testlinkpass
+    volumes:
+      - testlink_db_data:/var/lib/mysql
+
+  testlink:
+    image: public.ecr.aws/bitnami/testlink:latest
+    container_name: testlink
+    ports:
+      - "8085:8080"
+    environment:
+      - TESTLINK_DATABASE_HOST=testlink-db
+      - TESTLINK_DATABASE_PORT_NUMBER=3306
+      - TESTLINK_DATABASE_NAME=testlink
+      - TESTLINK_DATABASE_USER=testlink
+      - TESTLINK_DATABASE_PASSWORD=testlinkpass
+      - TESTLINK_USERNAME=admin
+      - TESTLINK_PASSWORD=admin123
+    depends_on:
+      - testlink-db
+
+volumes:
+  testlink_db_data:

@@ -1,0 +1,73 @@
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<!-- Footer JSPF - QhatuXApp -->
+
+<footer class="bg-dark text-light mt-5 pt-4 pb-3 border-top border-secondary">
+    <div class="container">
+
+        <!-- Sección superior -->
+        <div class="row align-items-center mb-4">
+            <div class="col-md-6 d-flex align-items-center mb-3 mb-md-0">
+                <a href="${pageContext.request.contextPath}/home" class="navbar-brand text-light fw-bold fs-4 me-3">
+                    <span class="text-warning">QhatuX</span>App
+                </a>
+                <div class="ms-3">
+                    <a href="https://facebook.com/tu-pagina" target="_blank" class="text-light me-3" aria-label="Facebook">
+                        <i class="bi bi-facebook fs-5"></i>
+                    </a>
+                    <a href="https://instagram.com/tu-pagina" target="_blank" class="text-light me-3" aria-label="Instagram">
+                        <i class="bi bi-instagram fs-5"></i>
+                    </a>
+                    <a href="https://x.com/tu-pagina" target="_blank" class="text-light" aria-label="X (Twitter)">
+                        <i class="bi bi-twitter-x fs-5"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="col-md-6 text-md-end">
+                <a href="#" class="btn btn-outline-light btn-sm me-2">
+                    <i class="bi bi-google-play"></i> Google Play
+                </a>
+                <a href="#" class="btn btn-outline-light btn-sm">
+                    <i class="bi bi-apple"></i> App Store
+                </a>
+            </div>
+        </div>
+
+        <!-- Sección de enlaces -->
+        <div class="row text-start text-md-start mb-4">
+            <div class="col-md-4 mb-3">
+                <h5 class="text-warning">TU EVENTO</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-light text-decoration-none">¿Eres Productor? Conoce más aquí</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Crear evento</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Blog para Productores</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Publica tu Streaming</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <h5 class="text-warning">LEGAL</h5>
+                <ul class="list-unstyled">
+                    <li><a href="#" class="text-light text-decoration-none">Términos y condiciones</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Política de privacidad</a></li>
+                    <li><a href="#" class="text-light text-decoration-none">Cookies</a></li>
+                </ul>
+            </div>
+
+            <div class="col-md-4 mb-3">
+                <h5 class="text-warning">CONTACTO</h5>
+                <p class="mb-1">
+                    <i class="bi bi-envelope"></i>
+                    <a href="mailto:contacto@qhatux.pe" class="text-light text-decoration-none">contacto@qhatux.pe</a>
+                </p>
+            </div>
+        </div>
+
+        <!-- Línea inferior -->
+        <div class="text-center small text-secondary border-top border-secondary pt-3">
+            © <c:out value="${pageContext.request.serverName}" /> — QhatuXApp <c:out value="${pageContext.request.serverPort}" />  
+            | Todos los derechos reservados
+        </div>
+
+    </div>
+</footer>

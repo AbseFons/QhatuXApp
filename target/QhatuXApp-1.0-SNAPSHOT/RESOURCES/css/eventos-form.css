@@ -1,0 +1,63 @@
+body {
+    background: #f5f7fa !important;
+}
+
+.event-form-page {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+.event-form-card {
+    border-radius: 1.5rem;
+    border: none;
+    box-shadow: 0 12px 30px rgba(0,0,0,0.06);
+    background: #ffffff;
+    padding: 1.75rem 1.85rem;
+}
+
+.event-form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.event-form-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: .15rem;
+}
+
+.event-form-subtitle {
+    font-size: .9rem;
+    color: #6c757d;
+}
+
+.event-form-section-title {
+    font-size: .95rem;
+    font-weight: 600;
+    margin-bottom: .5rem;
+}
+
+.event-form-section {
+    padding: 1rem 1.1rem;
+    border-radius: 1rem;
+    background: #f8f9fa;
+    margin-bottom: 1rem;
+}
+
+.event-form-section + .event-form-section {
+    margin-top: .25rem;
+}
+
+.event-form .form-control,
+.event-form .form-select {
+    border-radius: .75rem;
+}
+
+.event-form-footer {
+    margin-top: 1rem;
+    display: flex;
+    gap: .5rem;
+}

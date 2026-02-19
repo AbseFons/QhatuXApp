@@ -1,0 +1,24 @@
+html, body {
+    height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Lo que sea que pongas entre header.jspf y footer.jspf estará en medio */
+main.page-content {
+    flex: 1 0 auto;
+}
+
+/* El footer siempre se empuja al final */
+footer {
+    flex-shrink: 0;
+}
+
+.navbar .nav-link.active {
+  font-weight: 600;
+  border-bottom: 2px solid rgba(255,255,255,.75);
+}

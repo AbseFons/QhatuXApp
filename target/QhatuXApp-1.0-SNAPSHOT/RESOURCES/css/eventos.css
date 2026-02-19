@@ -1,0 +1,118 @@
+body {
+    background: #f5f7fa !important;
+}
+
+/* Contenedor general */
+.events-page {
+    padding-top: 1.5rem;
+    padding-bottom: 2rem;
+}
+
+/* Header de la página */
+.events-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+}
+
+.events-header-title {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin-bottom: .15rem;
+}
+
+.events-header-subtitle {
+    font-size: .95rem;
+    color: #6c757d;
+}
+
+/* Barra de filtros/búsqueda */
+.events-filters-card {
+    border-radius: 1.25rem;
+    border: none;
+    box-shadow: 0 10px 28px rgba(0,0,0,0.04);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+    background: #ffffff;
+}
+
+/* Cards de evento */
+.event-card {
+    border: none;
+    border-radius: 1.25rem;
+    overflow: hidden;
+    box-shadow: 0 8px 22px rgba(0,0,0,0.06);
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+}
+
+.event-card-img-wrapper {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.event-card-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.event-card-body {
+    padding: 1rem 1rem 1.1rem;
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+}
+
+.event-card-title {
+    font-weight: 600;
+    margin-bottom: .3rem;
+}
+
+.event-card-meta {
+    font-size: .85rem;
+    color: #6c757d;
+    margin-bottom: .4rem;
+}
+
+.event-card-price {
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.event-card-footer {
+    margin-top: auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Badge “próximo / hoy” opcional */
+.event-badge-date {
+    position: absolute;
+    left: .75rem;
+    top: .75rem;
+    padding: .25rem .6rem;
+    border-radius: 999px;
+    font-size: .75rem;
+    background: rgba(0,0,0,0.6);
+    color: #ffffff;
+}
+
+/* Estado “sin eventos” */
+.events-empty {
+    border-radius: 1.25rem;
+    padding: 1.75rem;
+    background: #f8f9fa;
+    text-align: center;
+    color: #6c757d;
+}
+
+/* Paginación */
+.events-pagination {
+    margin-top: 1.5rem;
+}
